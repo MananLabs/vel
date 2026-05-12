@@ -599,18 +599,18 @@ function Connection({ start, end, color, dashed = false }: any) {
   const path = `M ${sx} ${sy} C ${midX} ${sy}, ${midX} ${ey}, ${ex} ${ey}`;
   return (
     <>
-      <path d={path} stroke={color} strokeWidth="1.5" fill="none" opacity="0.15" />
+      <path d={path} stroke={color} strokeWidth="0.5" fill="none" opacity="0.1" />
       <path 
         d={path} 
         stroke={color} 
         strokeWidth="1.5" 
         fill="none" 
         strokeDasharray={dashed ? "6 6" : "none"}
-        className={dashed ? "animate-[dash_20s_linear_infinite]" : "opacity-80"} 
-        style={{ filter: `drop-shadow(0 0 8px ${color})` }}
+        className={dashed ? "animate-[dash_20s_linear_infinite]" : "opacity-60"} 
+        style={{ filter: `drop-shadow(0 0 10px ${color})` }}
       />
-      <circle cx={sx} cy={sy} r="3" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
-      <circle cx={ex} cy={ey} r="3" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
+      <circle cx={sx} cy={sy} r="2" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
+      <circle cx={ex} cy={ey} r="2" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
     </>
   );
 }
@@ -619,29 +619,33 @@ function AdvancedNode({
   icon: Icon, title, model, color, status, desc, progress, stats, code, children, pulse 
 }: any) {
   return (
-    <div className="p-4 rounded-xl bg-[#0A0A0C]/95 border shadow-2xl backdrop-blur-2xl w-full h-full flex flex-col transition-all duration-300" style={{ borderColor: `${color}40`, boxShadow: `0 0 40px ${color}10` }}>
-      <div className="flex items-center justify-between mb-3">
+    <div className="p-4 rounded-xl bg-black/40 border border-white/[0.04] backdrop-blur-xl w-full h-full flex flex-col transition-all duration-500 hover:bg-black/60 hover:border-white/10 overflow-hidden relative group">
+      {/* Top glowing edge */}
+      <div className="absolute top-0 left-0 w-full h-[1px] opacity-40 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[12px] blur-[12px] opacity-20" style={{ background: color }} />
+      
+      <div className="flex items-center justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2">
           {Icon && (
-            <div className="w-6 h-6 flex items-center justify-center rounded-md" style={{ backgroundColor: `${color}15`, color }}>
-              <Icon className="w-3.5 h-3.5" />
+            <div className="w-5 h-5 flex items-center justify-center rounded bg-white/[0.02] border border-white/[0.05]" style={{ color }}>
+              <Icon className="w-[10px] h-[10px]" />
             </div>
           )}
-          <span className="text-xs font-semibold text-white/90">{title}</span>
+          <span className="text-[11px] font-semibold text-white/90 tracking-wide">{title}</span>
         </div>
         {model && (
-          <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/50 font-mono flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: pulse ? `0 0 8px ${color}` : 'none' }} className={pulse ? "animate-pulse" : ""} />
+          <span className="text-[8px] px-2 py-0.5 rounded-full bg-black/50 border border-white/5 text-white/40 font-mono flex items-center gap-1.5 uppercase tracking-widest">
+            <div className="w-1 h-1 rounded-full" style={{ background: color, boxShadow: pulse ? `0 0 6px ${color}` : 'none' }} className={pulse ? "animate-pulse" : ""} />
             {model}
           </span>
         )}
       </div>
       
       {status && (
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-[10px] text-white/40">Status:</span>
-          <span className="text-[10px] text-white/80 flex items-center gap-1.5">
-            <div className={`w-1.5 h-1.5 rounded-full ${status === 'Live' || status === 'Processing' ? 'animate-pulse' : ''}`} style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+        <div className="flex items-center gap-2 mb-3 relative z-10">
+          <span className="text-[9px] text-white/30 uppercase tracking-widest">Status:</span>
+          <span className="text-[9px] text-white/70 flex items-center gap-1.5 font-medium tracking-wide">
+            <div className={`w-1 h-1 rounded-full ${status === 'Live' || status === 'Processing' ? 'animate-pulse' : ''}`} style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
             {status}
           </span>
         </div>
