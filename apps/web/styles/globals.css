@@ -1,0 +1,234 @@
+/* ═══════════════════════════════════════════════════════════
+   VEL AI — Design System
+   Cinematic Dark / Pixel Grid Aesthetic
+   ═══════════════════════════════════════════════════════════ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --vel-bg-void:        #010101;
+  --vel-bg-surface:     #0A0A0A;
+  --vel-bg-elevated:    #111111;
+  --vel-bg-panel:       #0D0D0D;
+  --vel-bg-glass:       rgba(10, 10, 10, 0.85);
+  --vel-bg-hover:       rgba(255, 255, 255, 0.03);
+
+  --vel-border-subtle:  rgba(255, 255, 255, 0.05);
+  --vel-border-default: rgba(255, 255, 255, 0.08);
+  --vel-border-active:  rgba(255, 255, 255, 0.20);
+  --vel-border-focus:   rgba(255, 255, 255, 0.35);
+
+  --vel-accent:         #FFFFFF;
+  --vel-accent-dim:     rgba(255, 255, 255, 0.6);
+  --vel-accent-muted:   rgba(255, 255, 255, 0.08);
+
+  --vel-green:          #00FF88;
+  --vel-green-muted:    rgba(0, 255, 136, 0.10);
+  --vel-blue:           #4488FF;
+  --vel-amber:          #FFAA00;
+  --vel-red:            #FF4444;
+
+  --vel-claude:         #A78BFA;
+  --vel-gpt:            #00FF88;
+  --vel-gemini:         #4488FF;
+  --vel-perplexity:     #FFAA00;
+
+  --vel-text-primary:   #E8E8E8;
+  --vel-text-secondary: #777777;
+  --vel-text-muted:     #3A3A3A;
+  --vel-text-disabled:  #222222;
+
+  --font-pixel:    'Press Start 2P', monospace;
+  --font-body:     'Space Grotesk', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+
+  --shadow-tile:   0 2px 16px rgba(0,0,0,0.6);
+  --shadow-modal:  0 16px 64px rgba(0,0,0,0.8);
+
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--vel-bg-void);
+  color: var(--vel-text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+/* ── Canvas ─────────────────────────────────────────────── */
+
+.canvas-background {
+  background-color: var(--vel-bg-void);
+  background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Glass ──────────────────────────────────────────────── */
+
+.vel-glass {
+  background: var(--vel-bg-glass);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--vel-border-subtle);
+}
+
+/* ── Tile System ────────────────────────────────────────── */
+
+.vel-tile {
+  background: var(--vel-bg-surface);
+  border: 1px solid var(--vel-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-tile);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.vel-tile:hover { border-color: var(--vel-border-default); }
+
+.vel-tile.selected {
+  border-color: var(--vel-border-active);
+}
+
+/* ── Skeleton ───────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.vel-skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.06) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* ── Streaming ──────────────────────────────────────────── */
+
+@keyframes streaming-pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.streaming-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: streaming-pulse 1.2s ease-in-out infinite;
+}
+.streaming-dot:nth-child(2) { animation-delay: 0.2s; }
+.streaming-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes tile-spawn {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.tile-spawn { animation: tile-spawn 200ms var(--ease-smooth) forwards; }
+
+@keyframes context-flow {
+  to { stroke-dashoffset: -20; }
+}
+.context-edge-active {
+  stroke-dasharray: 5 5;
+  animation: context-flow 0.6s linear infinite;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+
+.btn-primary {
+  background: white;
+  color: #010101;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--vel-text-secondary);
+  border: 1px solid var(--vel-border-default);
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.btn-secondary:hover {
+  color: var(--vel-text-primary);
+  border-color: var(--vel-border-active);
+}
+
+/* ── Credit Badge ───────────────────────────────────────── */
+
+.credit-ok    { color: var(--vel-green); }
+.credit-warn  { color: var(--vel-amber); }
+.credit-low   { color: var(--vel-red); }
+
+/* ── React Flow Overrides ───────────────────────────────── */
+
+.react-flow__background { background-color: var(--vel-bg-void) !important; }
+.react-flow__minimap {
+  background: rgba(10, 10, 10, 0.9) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  border-radius: 6px !important;
+}
+.react-flow__controls {
+  background: var(--vel-bg-surface) !important;
+  border: 1px solid var(--vel-border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+}
+.react-flow__controls-button {
+  background: transparent !important;
+  border-bottom: 1px solid var(--vel-border-subtle) !important;
+  color: var(--vel-text-secondary) !important;
+}
+.react-flow__controls-button:hover {
+  background: var(--vel-bg-hover) !important;
+  color: var(--vel-text-primary) !important;
+}
+.react-flow__attribution { display: none !important; }
