@@ -25,44 +25,46 @@ export default function LandingPage() {
     <div className="min-h-screen bg-transparent text-[#E8E8E8] font-body selection:bg-white/20 selection:text-white overflow-hidden">
       
       {/* ── NAVIGATION ──────────────────────────────────────── */}
-      <motion.nav 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between"
-      >
-        <div className="absolute inset-0 bg-[#020203]/40 backdrop-blur-2xl border-b border-white/[0.04] mask-nav" />
-        
-        <div className="relative z-10 flex items-center gap-12">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <motion.nav 
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="pointer-events-auto w-[95vw] md:w-auto md:min-w-[800px]"
+        >
+          <div className="flex items-center justify-between p-2 rounded-full bg-black/40 border border-white/[0.08] backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] transition-all duration-500 hover:bg-black/60 hover:border-white/[0.12]">
+          
+          <Link href="/" className="flex items-center gap-3 pl-2 pr-4 group">
+            <div className="w-8 h-8 rounded-full bg-white/[0.04] flex items-center justify-center border border-white/[0.08] group-hover:bg-white/[0.08] group-hover:scale-105 transition-all">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-[15px] tracking-tight">VEL AI</span>
+            <span className="font-display font-semibold text-[14px] tracking-tight text-white/90 group-hover:text-white transition-colors">VEL AI</span>
           </Link>
           
-          <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-white/60">
-            {['Features', 'Models', 'Workspace', 'Developers', 'Pricing'].map(item => (
-              <Link key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">
+          <div className="hidden md:flex items-center gap-1 px-3 py-1 rounded-full bg-white/[0.02] border border-white/[0.02]">
+            {['Features', 'Swarms', 'Workspace', 'Pricing'].map(item => (
+              <Link key={item} href={`#${item.toLowerCase()}`} className="px-4 py-1.5 rounded-full text-[12px] font-medium text-white/50 hover:text-white hover:bg-white/[0.06] transition-all">
                 {item}
               </Link>
             ))}
           </div>
-        </div>
 
-        <div className="relative z-10 flex items-center gap-6">
-          <Link href="/sign-in" className="text-[13px] font-medium text-white/60 hover:text-white transition-colors">
-            Login
-          </Link>
-          <Link href="/sign-up" className="relative group overflow-hidden rounded-full p-[1px]">
-            <span className="absolute inset-0 bg-gradient-to-r from-white/40 to-white/10 rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
-            <div className="relative bg-[#0A0A0C] px-5 py-2 rounded-full flex items-center gap-2 transition-all group-hover:bg-[#111114]">
-              <span className="text-[13px] font-semibold text-white">Launch App</span>
-              <ArrowRight className="w-3.5 h-3.5 text-white/70 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
+          <div className="flex items-center gap-2 pr-1">
+            <Link href="/sign-in" className="hidden md:block px-4 py-2 rounded-full text-[12px] font-medium text-white/50 hover:text-white transition-colors">
+              Login
+            </Link>
+            <Link href="/sign-up" className="relative group overflow-hidden rounded-full p-[1px]">
+              <span className="absolute inset-0 bg-gradient-to-r from-white/40 to-white/10 rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative bg-black px-5 py-2 rounded-full flex items-center gap-2 transition-all group-hover:bg-black/80">
+                <span className="text-[12px] font-semibold text-white">Launch App</span>
+                <ArrowRight className="w-3.5 h-3.5 text-white/70 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </Link>
+          </div>
+
         </div>
       </motion.nav>
+      </div>
 
       {/* ── HERO SECTION ──────────────────────────────────────── */}
       <section className="relative min-h-[100svh] flex flex-col items-center justify-center pt-24 pb-32">
@@ -362,12 +364,13 @@ export default function LandingPage() {
               <div className="absolute top-0 left-0 w-full h-[60%] flex items-center justify-center">
                 <svg viewBox="0 0 400 200" className="w-full h-full opacity-60">
                   <path d="M 100 100 C 180 100, 200 40, 300 40" stroke="url(#glow-blue)" strokeWidth="1.5" fill="none" className="animate-[dash_10s_linear_infinite]" strokeDasharray="4 4" />
-                  <path d="M 100 100 C 180 100, 200 100, 300 100" stroke="url(#glow-purple)" strokeWidth="1.5" fill="none" />
+                  <path d="M 100 100 C 180 100, 200 100, 300 100" stroke="url(#glow-purple)" strokeWidth="1.5" fill="none" className="animate-[dash_12s_linear_infinite]" strokeDasharray="4 4" />
                   <path d="M 100 100 C 180 100, 200 160, 300 160" stroke="url(#glow-orange)" strokeWidth="1.5" fill="none" className="animate-[dash_15s_linear_infinite]" strokeDasharray="4 4" />
                   
                   <defs>
                     <linearGradient id="glow-blue" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#4488FF" stopOpacity="0.8"/><stop offset="100%" stopColor="#4488FF" stopOpacity="0"/></linearGradient>
                     <linearGradient id="glow-purple" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#A78BFA" stopOpacity="0.8"/><stop offset="100%" stopColor="#A78BFA" stopOpacity="0"/></linearGradient>
+                    <linearGradient id="glow-orange" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFAA00" stopOpacity="0.8"/><stop offset="100%" stopColor="#FFAA00" stopOpacity="0"/></linearGradient>
                   </defs>
 
                   <rect x="60" y="80" width="40" height="40" rx="8" fill="#111115" stroke="#ffffff" strokeOpacity="0.1" />
