@@ -28,6 +28,7 @@ const config: Config = {
         },
       },
       fontFamily: {
+        heading: ['var(--font-syne)', 'Syne', 'sans-serif'],
         display: ['var(--font-syne)', 'Syne', 'sans-serif'],
         body:    ['var(--font-dm-sans)', 'DM Sans', 'sans-serif'],
         mono:    ['var(--font-jetbrains)', 'JetBrains Mono', 'monospace'],

@@ -16,13 +16,13 @@
   --vel-border-focus:    #7C3AED;
 
   /* Violet Accent System */
-  --vel-violet:          #7C3AED;
-  --vel-violet-bright:   #8B5CF6;
-  --vel-violet-dim:      #6D28D9;
-  --vel-violet-muted:    #4C1D95;
-  --vel-violet-alpha-12: rgba(124, 58, 237, 0.12);
-  --vel-violet-alpha-20: rgba(124, 58, 237, 0.20);
-  --vel-violet-glow:     0 0 20px rgba(124, 58, 237, 0.35);
+  --vel-violet:          #62B3FF;
+  --vel-violet-bright:   #8CC8FF;
+  --vel-violet-dim:      #2B77B8;
+  --vel-violet-muted:    #174066;
+  --vel-violet-alpha-12: rgba(98, 179, 255, 0.12);
+  --vel-violet-alpha-20: rgba(98, 179, 255, 0.20);
+  --vel-violet-glow:     0 0 24px rgba(98, 179, 255, 0.35);
 
   /* Text */
   --vel-text:            #F5F5F5;

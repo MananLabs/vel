@@ -1,141 +1,43 @@
 'use client';
 
 import { memo } from 'react';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 function NavInner() {
   return (
-    <div className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-auto w-[95vw] md:w-auto md:min-w-[800px]"
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 8,
-            borderRadius: 9999,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            backdropFilter: 'blur(24px)',
-            boxShadow: '0 0 40px rgba(0,0,0,0.5)',
-            transition: 'all 500ms',
-          }}
-        >
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              paddingLeft: 8,
-              paddingRight: 16,
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.04)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid rgba(255,255,255,0.08)',
-                fontSize: 14,
-              }}
-            >
-              ✦
-            </div>
-            <span
-              style={{
-                fontFamily: 'var(--font-heading)',
-                fontWeight: 700,
-                fontSize: 14,
-                letterSpacing: '-0.02em',
-                color: 'rgba(255,255,255,0.9)',
-              }}
-            >
-              VEL AI
-              <span style={{ color: '#7C3AED' }}>.</span>
-            </span>
-          </Link>
+    <motion.nav
+      initial={{ y: -24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed top-4 left-0 right-0 z-50 px-4"
+    >
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-black/55 px-4 py-3 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-3 text-white no-underline">
+          <div className="h-8 w-8 rounded-lg border border-white/15 bg-white/5 grid place-items-center text-xs font-bold">V</div>
+          <span className="text-sm font-semibold tracking-tight">VEL AI</span>
+        </Link>
 
-          <div
-            className="hidden md:flex"
-            style={{
-              alignItems: 'center',
-              gap: 4,
-              padding: '4px 12px',
-              borderRadius: 9999,
-              background: 'rgba(255,255,255,0.02)',
-            }}
-          >
-            {['Features', 'Models', 'Workspace', 'Pricing'].map((item) => (
-              <Link
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                style={{
-                  padding: '6px 16px',
-                  borderRadius: 9999,
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: 'rgba(255,255,255,0.5)',
-                  textDecoration: 'none',
-                  transition: 'all 150ms',
-                }}
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4 }}>
-            <Link
-              href="/sign-in"
-              className="hidden md:block"
-              style={{
-                padding: '8px 16px',
-                borderRadius: 9999,
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'rgba(255,255,255,0.5)',
-                textDecoration: 'none',
-              }}
+        <div className="hidden md:flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-1">
+          {['Features', 'Models', 'Pricing'].map((item) => (
+            <a
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              className="rounded-full px-3 py-1.5 text-xs text-white/60 transition hover:bg-white/10 hover:text-white no-underline"
             >
-              Login
-            </Link>
-            <Link
-              href="/sign-up"
-              style={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 20px',
-                borderRadius: 9999,
-                background: '#7C3AED',
-                color: '#fff',
-                fontSize: 12,
-                fontWeight: 600,
-                textDecoration: 'none',
-                transition: 'all 150ms',
-                boxShadow: '0 0 20px rgba(124,58,237,0.3)',
-              }}
-            >
-              Launch App →
-            </Link>
-          </div>
+              {item}
+            </a>
+          ))}
         </div>
-      </motion.nav>
-    </div>
+
+        <Link
+          href="/sign-up"
+          className="rounded-xl border border-sky-300/40 bg-sky-400/20 px-4 py-2 text-xs font-semibold text-sky-100 no-underline transition hover:bg-sky-300/30"
+        >
+          Try Workspace
+        </Link>
+      </div>
+    </motion.nav>
   );
 }
 

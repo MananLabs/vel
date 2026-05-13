@@ -3,42 +3,31 @@
 import { memo } from 'react';
 
 const MODELS = [
-  { name: 'Claude Sonnet 4', provider: 'Anthropic', color: '#8B5CF6', credits: 8, tier: 'Pro' },
-  { name: 'GPT-4o', provider: 'OpenAI', color: '#10B981', credits: 8, tier: 'Pro' },
-  { name: 'Gemini 1.5 Pro', provider: 'Google', color: '#3B82F6', credits: 6, tier: 'Pro' },
-  { name: 'GPT-4o Mini', provider: 'OpenAI', color: '#6EE7B7', credits: 2, tier: 'Free' },
-  { name: 'Gemini Flash', provider: 'Google', color: '#93C5FD', credits: 1, tier: 'Free' },
-  { name: 'Sonar Pro', provider: 'Perplexity', color: '#F59E0B', credits: 5, tier: 'Pro' },
-  { name: 'Grok 2', provider: 'xAI', color: '#EF4444', credits: 6, tier: 'Pro' },
-  { name: 'Llama 3.1 70B', provider: 'Meta', color: '#06B6D4', credits: 3, tier: 'Free' },
+  { name: 'Claude Sonnet', provider: 'Anthropic', tier: 'Pro' },
+  { name: 'GPT-4o', provider: 'OpenAI', tier: 'Pro' },
+  { name: 'Gemini Flash', provider: 'Google', tier: 'Free' },
+  { name: 'Grok', provider: 'xAI', tier: 'Pro' },
+  { name: 'Llama 3.3', provider: 'Meta', tier: 'Free' },
+  { name: 'Qwen Coder', provider: 'Qwen', tier: 'Free' },
+  { name: 'Sonar', provider: 'Perplexity', tier: 'Pro' },
+  { name: 'Hermes', provider: 'Nous', tier: 'Free' },
 ];
 
 function ModelGridInner() {
   return (
-    <section id="models" style={{ padding: '128px 0', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <p style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#7C3AED', marginBottom: 16 }}>Integrated Models</p>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontFamily: 'var(--font-heading)', fontWeight: 700, letterSpacing: '-0.02em' }}>
-            Every frontier model<span style={{ color: '#7C3AED' }}>.</span><br />
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>One workspace.</span>
-          </h2>
+    <section id="models" className="border-y border-white/10 px-6 py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 text-center">
+          <p className="mb-3 text-xs uppercase tracking-[0.18em] text-sky-300/80">Models</p>
+          <h2 className="text-[clamp(30px,4.8vw,52px)] font-bold text-white">One UI. Many models.</h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260, 1fr))', gap: 12 }}>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {MODELS.map((m) => (
-            <div key={m.name} style={{ padding: 20, borderRadius: 16, background: 'rgba(10,10,12,0.9)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 300ms' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${m.color}15`, border: `1px solid ${m.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: m.color, boxShadow: `0 0 12px ${m.color}` }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{m.name}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{m.provider}</div>
-              </div>
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.6)' }}>{m.credits}cr</div>
-                <div style={{ fontSize: 10, color: m.tier === 'Free' ? '#22C55E' : '#7C3AED', fontWeight: 600 }}>{m.tier}</div>
-              </div>
+            <div key={m.name} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="text-sm font-semibold text-white">{m.name}</div>
+              <div className="mt-1 text-xs text-white/55">{m.provider}</div>
+              <div className="mt-3 text-xs font-medium text-sky-200/90">{m.tier}</div>
             </div>
           ))}
         </div>

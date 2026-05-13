@@ -4,130 +4,46 @@ import { memo } from 'react';
 
 const FEATURES = [
   {
-    title: 'Autonomous Swarms',
-    desc: 'Deploy multiple specialized agents to handle repetitive research and engineering pipelines.',
-    icon: '🔮',
-    span: 1,
+    title: 'Realtime Search',
+    desc: 'Pull fresh web context into prompts with source-aware research tiles.',
   },
   {
-    title: 'Infinite Routing',
-    desc: "Design complex acyclic graphs. Output from GPT-4o flows directly into Claude's context window.",
-    icon: '🌐',
-    span: 2,
+    title: 'Long Context',
+    desc: 'Handle large docs and multi-step reasoning without losing thread.',
   },
   {
-    title: 'Shared Context',
-    desc: 'A persistent memory store ensures all agents maintain exact situational awareness.',
-    icon: '📡',
-    span: 1,
+    title: 'Model Routing',
+    desc: 'Pick the best model per task and chain outputs across your graph.',
   },
   {
-    title: 'Terminal Sandboxes',
-    desc: 'Deploy agents that can write, execute, and debug bash scripts natively.',
-    icon: '⌨️',
-    span: 1,
+    title: 'Shared Memory',
+    desc: 'Keep every tile aligned on goals, facts, and intermediate results.',
   },
   {
-    title: 'Deep Research',
-    desc: 'Multi-pass data extraction powered by Perplexity Sonar and continuous learning.',
-    icon: '🔍',
-    span: 1,
+    title: 'Execution Loop',
+    desc: 'Move from ideas to code with terminal-driven iteration in the same flow.',
+  },
+  {
+    title: 'Team Velocity',
+    desc: 'Create reusable workspaces and run parallel AI workflows across projects.',
   },
 ];
 
 function FeatureGridInner() {
   return (
-    <section id="features" style={{ padding: '160px 0', position: 'relative' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ marginBottom: 80 }}>
-          <h2
-            style={{
-              fontSize: 'clamp(32px, 5vw, 56px)',
-              fontFamily: 'var(--font-heading)',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.1,
-              marginBottom: 24,
-            }}
-          >
-            Infinite Canvas
-            <span style={{ color: '#7C3AED' }}>.</span>
-            <br />
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>Zero limitations.</span>
-          </h2>
-          <p
-            style={{
-              fontSize: 18,
-              color: 'rgba(255,255,255,0.5)',
-              maxWidth: 640,
-              lineHeight: 1.7,
-            }}
-          >
-            Break out of the chat box. Orchestrate complex workflows with multi-agent
-            consensus, live terminal execution, and persistent shared context.
-          </p>
+    <section id="features" className="px-6 py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 max-w-2xl">
+          <p className="mb-3 text-xs uppercase tracking-[0.18em] text-sky-300/80">Capabilities</p>
+          <h2 className="text-[clamp(30px,4.8vw,54px)] font-bold leading-tight text-white">A workspace built for serious AI output.</h2>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 16,
-          }}
-        >
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              style={{
-                gridColumn: `span ${f.span}`,
-                padding: 32,
-                borderRadius: 24,
-                background: 'rgba(10,10,12,0.9)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                boxShadow: '0 0 40px rgba(0,0,0,0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                minHeight: 320,
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'all 500ms',
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 32,
-                  left: 32,
-                  fontSize: 40,
-                  opacity: 0.8,
-                }}
-              >
-                {f.icon}
-              </div>
-              <h3
-                style={{
-                  fontSize: 20,
-                  fontFamily: 'var(--font-heading)',
-                  fontWeight: 700,
-                  letterSpacing: '-0.01em',
-                  marginBottom: 8,
-                  color: 'rgba(255,255,255,0.9)',
-                }}
-              >
-                {f.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: 'rgba(255,255,255,0.4)',
-                  lineHeight: 1.6,
-                  maxWidth: f.span > 1 ? 480 : undefined,
-                }}
-              >
-                {f.desc}
-              </p>
-            </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((feature) => (
+            <article key={feature.title} className="rounded-2xl border border-white/10 bg-black/40 p-6">
+              <h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
+              <p className="text-sm leading-relaxed text-white/60">{feature.desc}</p>
+            </article>
           ))}
         </div>
       </div>

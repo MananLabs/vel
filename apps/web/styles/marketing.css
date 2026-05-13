@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --grok-bg-0: #030406;
+    --grok-bg-1: #090b11;
+    --grok-bg-2: #101521;
+    --grok-accent: #62b3ff;
+    --grok-accent-soft: rgba(98, 179, 255, 0.18);
+  }
+}
+
+@layer utilities {
+  .grok-page-bg {
+    background:
+      radial-gradient(65% 45% at 80% 2%, rgba(98, 179, 255, 0.18) 0%, transparent 52%),
+      radial-gradient(50% 35% at 15% 18%, rgba(255, 255, 255, 0.08) 0%, transparent 58%),
+      linear-gradient(180deg, var(--grok-bg-1) 0%, var(--grok-bg-0) 60%, #020203 100%);
+  }
+
+  .grok-grid-overlay {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.22;
+  }
+
+  .grok-hero-glow {
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 70%;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgba(98, 179, 255, 0.18), transparent 75%);
+    filter: blur(20px);
+  }
+}
+
+@layer utilities {
+  .bento-card {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      0 28px 70px rgba(0,0,0,0.52),
+      0 0 0 1px rgba(255,255,255,0.02);
+    backdrop-filter: blur(10px);
+  }
+
+  .bento-card:hover {
+    border-color: rgba(255,255,255,0.18);
+    transition: border-color 220ms ease;
+  }
+}

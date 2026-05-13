@@ -3,6 +3,7 @@ import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { QueryProvider } from '@/components/providers/query-provider';
 import '@/styles/globals.css';
+import '@/styles/marketing.css';
 
 const syne = Syne({
   subsets: ['latin'],
