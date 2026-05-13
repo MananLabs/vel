@@ -12,6 +12,9 @@ import { UsersModule } from './modules/users/users.module';
 import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { TilesModule } from './modules/tiles/tiles.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { ResearchModule } from './modules/research/research.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     BillingModule,
     UsersModule,
     WorkspaceModule,
+    TilesModule,
+    MessagesModule,
+    ResearchModule,
   ],
 })
 export class AppModule {}

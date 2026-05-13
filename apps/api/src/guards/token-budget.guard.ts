@@ -8,7 +8,7 @@ import {
   Injectable,
   ForbiddenException,
 } from '@nestjs/common';
-import { getModel } from '../../packages/shared/types/models';
+import { getModel } from '@vel-ai/shared/types/models';
 import type { AuthenticatedRequest } from '../common/types';
 
 @Injectable()

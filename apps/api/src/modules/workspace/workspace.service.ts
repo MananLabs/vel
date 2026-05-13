@@ -4,8 +4,7 @@
 
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { db } from '../../database/db';
-import { workspaces } from '../../database/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -13,30 +12,25 @@ export class WorkspaceService {
   private readonly logger = new Logger(WorkspaceService.name);
 
   async findAllByUser(userId: string) {
-    return db
-      .select()
-      .from(workspaces)
-      .where(eq(workspaces.userId, userId))
-      .orderBy(desc(workspaces.lastOpenedAt));
+    const result = await db.execute(sql`
+      SELECT * FROM workspaces WHERE user_id = ${userId} ORDER BY last_opened_at DESC NULLS LAST
+    `);
+    return Array.isArray(result) ? result : [];
   }
 
   async findById(id: string, userId: string) {
-    const [workspace] = await db
-      .select()
-      .from(workspaces)
-      .where(and(eq(workspaces.id, id), eq(workspaces.userId, userId)));
+    const result = await db.execute(sql`
+      SELECT * FROM workspaces WHERE id = ${id} AND user_id = ${userId}
+    `);
+    const rows = Array.isArray(result) ? result : [];
 
-    if (!workspace) {
+    if (rows.length === 0) {
       throw new NotFoundException('Workspace not found');
     }
 
-    // Update last opened
-    await db
-      .update(workspaces)
-      .set({ lastOpenedAt: new Date() })
-      .where(eq(workspaces.id, id));
+    await db.execute(sql`UPDATE workspaces SET last_opened_at = NOW() WHERE id = ${id}`);
 
-    return workspace;
+    return rows[0];
   }
 
   async create(
@@ -44,25 +38,17 @@ export class WorkspaceService {
     data: { name: string; description?: string; templateId?: string },
   ) {
     const shareToken = uuidv4().replace(/-/g, '').slice(0, 16);
+    const name = data.name || 'Untitled Workspace';
+    const description = data.description || null;
+    const templateId = data.templateId || null;
 
-    const [workspace] = await db
-      .insert(workspaces)
-      .values({
-        userId,
-        name: data.name,
-        description: data.description || null,
-        templateId: data.templateId || null,
-        shareToken,
-        canvasState: {
-          nodes: [],
-          edges: [],
-          viewport: { x: 0, y: 0, zoom: 0.85 },
-        },
-        contextGraph: { connections: [] },
-      })
-      .returning();
+    const result = await db.execute(sql`
+      INSERT INTO workspaces (user_id, name, description, template_id, share_token, canvas_state, context_graph, tile_count)
+      VALUES (${userId}, ${name}, ${description}, ${templateId}, ${shareToken}, '{"nodes": [], "edges": [], "viewport": {"x": 0, "y": 0, "zoom": 0.85}}', '{"connections": []}', 0)
+      RETURNING *
+    `);
 
-    return workspace;
+    return result[0];
   }
 
   async update(
@@ -76,33 +62,39 @@ export class WorkspaceService {
       tileCount?: number;
     },
   ) {
-    const [workspace] = await db
-      .update(workspaces)
-      .set({
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.canvasState !== undefined && { canvasState: data.canvasState }),
-        ...(data.contextGraph !== undefined && { contextGraph: data.contextGraph }),
-        ...(data.tileCount !== undefined && { tileCount: data.tileCount }),
-        updatedAt: new Date(),
-      })
-      .where(and(eq(workspaces.id, id), eq(workspaces.userId, userId)))
-      .returning();
+    const updates: string[] = [];
+    const params: unknown[] = [];
 
-    if (!workspace) {
+    if (data.name !== undefined) { updates.push('name = $' + (params.length + 1)); params.push(data.name); }
+    if (data.description !== undefined) { updates.push('description = $' + (params.length + 1)); params.push(data.description); }
+    if (data.canvasState !== undefined) { updates.push('canvas_state = $' + (params.length + 1)); params.push(JSON.stringify(data.canvasState)); }
+    if (data.contextGraph !== undefined) { updates.push('context_graph = $' + (params.length + 1)); params.push(JSON.stringify(data.contextGraph)); }
+    if (data.tileCount !== undefined) { updates.push('tile_count = $' + (params.length + 1)); params.push(data.tileCount); }
+
+    if (updates.length === 0) {
+      return this.findById(id, userId);
+    }
+
+    params.push(id, userId);
+    const result = await db.execute(sql`
+      UPDATE workspaces SET ${sql.raw(updates.join(', '))}, updated_at = NOW()
+      WHERE id = $${params.length - 1} AND user_id = $${params.length}
+      RETURNING *
+    `);
+    const rows = Array.isArray(result) ? result : [];
+    if (rows.length === 0) {
       throw new NotFoundException('Workspace not found');
     }
 
-    return workspace;
+    return rows[0];
   }
 
   async delete(id: string, userId: string) {
-    const result = await db
-      .delete(workspaces)
-      .where(and(eq(workspaces.id, id), eq(workspaces.userId, userId)))
-      .returning();
-
-    if (!result.length) {
+    const result = await db.execute(sql`
+      DELETE FROM workspaces WHERE id = ${id} AND user_id = ${userId} RETURNING *
+    `);
+    const rows = Array.isArray(result) ? result : [];
+    if (rows.length === 0) {
       throw new NotFoundException('Workspace not found');
     }
 
@@ -110,15 +102,18 @@ export class WorkspaceService {
   }
 
   async findByShareToken(shareToken: string) {
-    const [workspace] = await db
-      .select()
-      .from(workspaces)
-      .where(
-        and(
-          eq(workspaces.shareToken, shareToken),
-          eq(workspaces.isPublic, true),
-        ),
-      );
-    return workspace || null;
+    const result = await db.execute(sql`
+      SELECT * FROM workspaces WHERE share_token = ${shareToken} AND is_public = true
+    `);
+    const rows = Array.isArray(result) ? result : [];
+    return rows[0] || null;
+  }
+
+  async verifyOwnership(workspaceId: string, userId: string): Promise<boolean> {
+    const result = await db.execute(sql`
+      SELECT id FROM workspaces WHERE id = ${workspaceId} AND user_id = ${userId}
+    `);
+    const rows = Array.isArray(result) ? result : [];
+    return rows.length > 0;
   }
 }

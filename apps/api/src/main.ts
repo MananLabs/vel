@@ -2,14 +2,28 @@
 // VEL AI — NestJS Bootstrap
 // ═══════════════════════════════════════════════════════════
 
+import { config } from 'dotenv';
+config({ path: '.env' });
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
   });
+
+  if (process.env.SENTRY_DSN) {
+    const Sentry = await import('@sentry/node');
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      tracesSampleRate: 0.1,
+      environment: process.env.NODE_ENV || 'development',
+    });
+    console.log('Sentry initialized');
+  }
 
   app.enableCors({
     origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],
@@ -27,6 +41,15 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api/v1');
+
+  app.use('/api/v1/health', (_req: Request, res: Response) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      uptime: process.uptime(),
+    });
+  });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);

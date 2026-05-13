@@ -66,7 +66,7 @@ export class BillingController {
         break;
       case 'checkout.session.completed':
         await this.billingService.handleCheckoutCompleted(
-          event.data.object as Stripe.CheckoutSession,
+          event.data.object as unknown as { metadata?: Record<string, string>; amount_total?: number; customer?: string | null },
         );
         break;
     }

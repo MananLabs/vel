@@ -1,71 +1,76 @@
-/* ═══════════════════════════════════════════════════════════
-   VEL AI — Design System
-   Cinematic Dark / Pixel Grid Aesthetic
-   ═══════════════════════════════════════════════════════════ */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 :root {
-  --vel-bg-void:        #010101;
-  --vel-bg-surface:     #0A0A0A;
-  --vel-bg-elevated:    #111111;
-  --vel-bg-panel:       #0D0D0D;
-  --vel-bg-glass:       rgba(10, 10, 10, 0.85);
-  --vel-bg-hover:       rgba(255, 255, 255, 0.03);
+  /* Backgrounds */
+  --vel-black:           #0A0A0A;
+  --vel-surface:         #111111;
+  --vel-card:            #161616;
+  --vel-card-elevated:   #1C1C1C;
+  --vel-overlay:         #202020;
 
-  --vel-border-subtle:  rgba(255, 255, 255, 0.05);
-  --vel-border-default: rgba(255, 255, 255, 0.08);
-  --vel-border-active:  rgba(255, 255, 255, 0.20);
-  --vel-border-focus:   rgba(255, 255, 255, 0.35);
+  /* Borders */
+  --vel-border:          #222222;
+  --vel-border-subtle:   #1A1A1A;
+  --vel-border-focus:    #7C3AED;
 
-  --vel-accent:         #FFFFFF;
-  --vel-accent-dim:     rgba(255, 255, 255, 0.6);
-  --vel-accent-muted:   rgba(255, 255, 255, 0.08);
+  /* Violet Accent System */
+  --vel-violet:          #7C3AED;
+  --vel-violet-bright:   #8B5CF6;
+  --vel-violet-dim:      #6D28D9;
+  --vel-violet-muted:    #4C1D95;
+  --vel-violet-alpha-12: rgba(124, 58, 237, 0.12);
+  --vel-violet-alpha-20: rgba(124, 58, 237, 0.20);
+  --vel-violet-glow:     0 0 20px rgba(124, 58, 237, 0.35);
 
-  --vel-green:          #00FF88;
-  --vel-green-muted:    rgba(0, 255, 136, 0.10);
-  --vel-blue:           #4488FF;
-  --vel-amber:          #FFAA00;
-  --vel-red:            #FF4444;
+  /* Text */
+  --vel-text:            #F5F5F5;
+  --vel-text-secondary:  #A3A3A3;
+  --vel-text-muted:      #525252;
+  --vel-text-inverse:    #0A0A0A;
 
-  --vel-claude:         #A78BFA;
-  --vel-gpt:            #00FF88;
-  --vel-gemini:         #4488FF;
-  --vel-perplexity:     #FFAA00;
+  /* Semantic */
+  --vel-success:         #10B981;
+  --vel-success-alpha:   rgba(16, 185, 129, 0.12);
+  --vel-warning:         #F59E0B;
+  --vel-warning-alpha:   rgba(245, 158, 11, 0.12);
+  --vel-danger:          #EF4444;
+  --vel-danger-alpha:    rgba(239, 68, 68, 0.12);
+  --vel-info:            #3B82F6;
+  --vel-info-alpha:      rgba(59, 130, 246, 0.12);
 
-  --vel-text-primary:   #E8E8E8;
-  --vel-text-secondary: #777777;
-  --vel-text-muted:     #3A3A3A;
-  --vel-text-disabled:  #222222;
+  /* Canvas */
+  --vel-canvas-bg:       #0A0A0A;
+  --vel-canvas-dot:      rgba(255, 255, 255, 0.04);
+  --vel-canvas-dot-size: 24px;
 
-  --font-pixel:    'Press Start 2P', monospace;
-  --font-body:     'Space Grotesk', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
+  /* Tile */
+  --vel-tile-shadow:     0 0 0 1px rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.4);
+  --vel-tile-shadow-active: 0 0 0 2px rgba(124,58,237,0.5), 0 8px 32px rgba(0,0,0,0.6);
 
+  /* Typography */
+  --font-display: var(--font-syne), 'Syne', sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-mono:    var(--font-jetbrains), 'JetBrains Mono', monospace;
+
+  /* Spacing & Radii */
   --radius-sm:  4px;
   --radius-md:  8px;
   --radius-lg:  12px;
 
-  --shadow-tile:   0 2px 16px rgba(0,0,0,0.6);
-  --shadow-modal:  0 16px 64px rgba(0,0,0,0.8);
-
-  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 120ms;
-  --duration-base: 200ms;
+  /* Motion */
+  --ease-smooth:    cubic-bezier(0.0, 0.0, 0.2, 1);
+  --duration-fast:  150ms;
+  --duration-base:  250ms;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  background: var(--vel-bg-void);
-  color: var(--vel-text-primary);
+  background: var(--vel-black);
+  color: var(--vel-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -79,44 +84,65 @@ html, body {
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
 ::selection {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(124, 58, 237, 0.3);
   color: white;
 }
 
 /* ── Canvas ─────────────────────────────────────────────── */
 
 .canvas-background {
-  background-color: var(--vel-bg-void);
-  background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: var(--vel-canvas-bg);
+  background-image: radial-gradient(circle, var(--vel-canvas-dot) 1px, transparent 1px);
+  background-size: var(--vel-canvas-dot-size) var(--vel-canvas-dot-size);
 }
 
 /* ── Glass ──────────────────────────────────────────────── */
 
 .vel-glass {
-  background: var(--vel-bg-glass);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid var(--vel-border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Grain Texture ──────────────────────────────────────── */
+
+.vel-grain {
+  position: relative;
+}
+.vel-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
 }
 
 /* ── Tile System ────────────────────────────────────────── */
 
 .vel-tile {
-  background: var(--vel-bg-surface);
+  background: var(--vel-surface);
   border: 1px solid var(--vel-border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-tile);
+  box-shadow: var(--vel-tile-shadow);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: border-color var(--duration-fast) var(--ease-smooth);
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
 }
 
-.vel-tile:hover { border-color: var(--vel-border-default); }
+.vel-tile:hover {
+  border-color: var(--vel-border);
+}
 
-.vel-tile.selected {
-  border-color: var(--vel-border-active);
+.vel-tile.selected,
+.vel-tile:focus-within {
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: var(--vel-tile-shadow-active);
 }
 
 /* ── Skeleton ───────────────────────────────────────────── */
@@ -149,30 +175,54 @@ html, body {
   height: 4px;
   border-radius: 50%;
   display: inline-block;
+  background: var(--vel-violet);
   animation: streaming-pulse 1.2s ease-in-out infinite;
 }
 .streaming-dot:nth-child(2) { animation-delay: 0.2s; }
 .streaming-dot:nth-child(3) { animation-delay: 0.4s; }
 
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--vel-violet);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* ── Tile Entrance ──────────────────────────────────────── */
+
 @keyframes tile-spawn {
-  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-.tile-spawn { animation: tile-spawn 200ms var(--ease-smooth) forwards; }
+.tile-spawn { animation: tile-spawn 300ms var(--ease-smooth) forwards; }
+
+/* ── Context Edge ───────────────────────────────────────── */
 
 @keyframes context-flow {
-  to { stroke-dashoffset: -20; }
+  from { stroke-dashoffset: 36; }
+  to   { stroke-dashoffset: 0; }
 }
+
 .context-edge-active {
-  stroke-dasharray: 5 5;
-  animation: context-flow 0.6s linear infinite;
+  stroke: rgba(124, 58, 237, 0.7);
+  stroke-width: 2;
+  stroke-dasharray: 8 4;
+  animation: context-flow 2s linear infinite;
 }
 
 /* ── Buttons ────────────────────────────────────────────── */
 
 .btn-primary {
-  background: white;
-  color: #010101;
+  background: var(--vel-violet);
+  color: white;
   border: none;
   border-radius: var(--radius-md);
   padding: 10px 20px;
@@ -180,45 +230,81 @@ html, body {
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: opacity var(--duration-fast), transform var(--duration-fast);
+  letter-spacing: 0.01em;
+  transition: transform var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth),
+              background var(--duration-fast) var(--ease-smooth);
 }
-.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-primary:hover {
+  background: var(--vel-violet-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--vel-violet-glow);
+}
 .btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
-.btn-secondary {
+.btn-ghost {
   background: transparent;
   color: var(--vel-text-secondary);
-  border: 1px solid var(--vel-border-default);
+  border: 1px solid var(--vel-border);
   border-radius: var(--radius-md);
   padding: 10px 20px;
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 13px;
   cursor: pointer;
-  transition: all var(--duration-fast);
+  transition: all var(--duration-fast) var(--ease-smooth);
 }
-.btn-secondary:hover {
-  color: var(--vel-text-primary);
-  border-color: var(--vel-border-active);
+.btn-ghost:hover {
+  color: var(--vel-text);
+  border-color: var(--vel-violet);
+  background: var(--vel-violet-alpha-12);
 }
 
 /* ── Credit Badge ───────────────────────────────────────── */
 
-.credit-ok    { color: var(--vel-green); }
-.credit-warn  { color: var(--vel-amber); }
-.credit-low   { color: var(--vel-red); }
+.credit-ok       { color: var(--vel-text-secondary); }
+.credit-warning  { color: var(--vel-warning); }
+.credit-critical { color: var(--vel-danger); }
+
+/* ── Violet Glow Utility ───────────────────────────────── */
+
+.vel-glow {
+  box-shadow: var(--vel-violet-glow);
+}
+
+.vel-glow-hover:hover {
+  box-shadow: var(--vel-violet-glow);
+}
+
+/* ── Gradient Text ──────────────────────────────────────── */
+
+.vel-gradient-text {
+  background: linear-gradient(to right, #FFFFFF, rgba(255, 255, 255, 0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vel-violet-gradient {
+  background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+}
 
 /* ── React Flow Overrides ───────────────────────────────── */
 
-.react-flow__background { background-color: var(--vel-bg-void) !important; }
+.react-flow__background { background-color: var(--vel-canvas-bg) !important; }
 .react-flow__minimap {
   background: rgba(10, 10, 10, 0.9) !important;
   border: 1px solid rgba(255,255,255,0.05) !important;
   border-radius: 6px !important;
 }
 .react-flow__controls {
-  background: var(--vel-bg-surface) !important;
+  background: var(--vel-surface) !important;
   border: 1px solid var(--vel-border-subtle) !important;
   border-radius: var(--radius-md) !important;
 }
@@ -228,7 +314,16 @@ html, body {
   color: var(--vel-text-secondary) !important;
 }
 .react-flow__controls-button:hover {
-  background: var(--vel-bg-hover) !important;
-  color: var(--vel-text-primary) !important;
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: var(--vel-text) !important;
 }
 .react-flow__attribution { display: none !important; }
+.react-flow__edge-path {
+  stroke: var(--vel-border) !important;
+}
+.react-flow__handle {
+  background: var(--vel-violet) !important;
+  border: 2px solid var(--vel-surface) !important;
+  width: 10px !important;
+  height: 10px !important;
+}

@@ -1,34 +1,63 @@
 import type { Metadata } from 'next';
+import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { QueryProvider } from '@/components/providers/query-provider';
 import '@/styles/globals.css';
 
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+  preload: true,
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+  preload: true,
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+  preload: true,
+});
+
 export const metadata: Metadata = {
-  title: 'VEL AI — Infinite Multi-Agent AI Workspace',
+  title: 'VEL AI — The Infinite Multi-Agent AI Operating Workspace',
   description:
-    'Run Claude, GPT-4o, and Gemini simultaneously on an infinite canvas. Share context between agents. Ship faster.',
+    'Orchestrate Claude, GPT-4o, Gemini, and every frontier AI model simultaneously on one infinite canvas. Share context between agents. Ship faster.',
   keywords: [
     'AI workspace',
-    'multi-agent',
-    'Claude',
-    'GPT-4',
-    'Gemini',
+    'multi-agent AI',
     'AI orchestration',
+    'Claude',
+    'GPT-4o',
+    'Gemini',
+    'AI canvas',
+    'consensus mode',
   ],
   openGraph: {
-    title: 'VEL AI — Infinite Multi-Agent AI Workspace',
-    description: 'The operating system layer for AI workflows',
+    title: 'VEL AI — The Infinite Multi-Agent AI Operating Workspace',
+    description:
+      'Run multiple AI models simultaneously on one infinite canvas with shared context.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'VEL AI',
-    description: 'Infinite Multi-Agent AI Operating Workspace',
+    description: 'The Infinite Multi-Agent AI Operating Workspace',
   },
 };
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const hasValidClerkKey = clerkKey && clerkKey.startsWith('pk_') && clerkKey.length > 20;
+const hasValidClerkKey =
+  clerkKey && clerkKey.startsWith('pk_') && clerkKey.length > 20;
 
 export default function RootLayout({
   children,
@@ -38,44 +67,27 @@ export default function RootLayout({
   const content = <QueryProvider>{children}</QueryProvider>;
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="bg-transparent text-[#E8E8E8] font-body selection:bg-white/20 selection:text-white">
-        <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#020203]">
-          <img
-            src="/bg3.avif"
-            alt="Background"
-            className="w-full h-full object-cover object-top opacity-60 mix-blend-screen"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#020203] via-[#020203]/40 to-[#020203]/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#020203] via-transparent to-[#020203]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020203_120%)]" />
-        </div>
-        {hasValidClerkKey ? (
-          <ClerkProvider
-            appearance={{
-              variables: {
-                colorPrimary: '#6D5FFF',
-                colorBackground: '#0C0C10',
-                colorText: '#F4F4F6',
-                colorInputBackground: '#12121A',
-                colorInputText: '#F4F4F6',
-                borderRadius: '10px',
-              },
-            }}
-          >
-            {content}
-          </ClerkProvider>
-        ) : (
-          content
-        )}
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}
+    >
+      <body className="bg-[#0A0A0A] text-[#F5F5F5] font-body antialiased selection:bg-violet-500/30 selection:text-white">
+        <ClerkProvider
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_ZHVtbXkua2V5LmNsZXJrLmFjY291bnRzLmRldiQ'}
+          appearance={{
+            variables: {
+              colorPrimary: '#7C3AED',
+              colorBackground: '#111111',
+              colorText: '#F5F5F5',
+              colorInputBackground: '#161616',
+              colorInputText: '#F5F5F5',
+              borderRadius: '8px',
+            },
+          }}
+        >
+          {content}
+        </ClerkProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useCallback, memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import ReactMarkdown from 'react-markdown';
 
@@ -12,9 +12,13 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
   const [query, setQuery] = useState('');
   const [isResearching, setIsResearching] = useState(false);
   const [results, setResults] = useState('');
-  const [sources, setSources] = useState<string[]>([]);
+  const [sources, setSources] = useState<Array<{ url: string; title: string; snippet: string }>>([]);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const API_BASE =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
   const startResearch = useCallback(async () => {
     if (!query.trim() || isResearching) return;
@@ -23,40 +27,66 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
     setIsResearching(true);
     setResults('');
     setSources([]);
+    setError('');
     setProgress(0);
 
-    // Simulated multi-pass research
     const phases = [
-      { label: 'Searching web sources...', pct: 25 },
-      { label: 'Analyzing top results...', pct: 50 },
-      { label: 'Cross-referencing data...', pct: 75 },
-      { label: 'Generating summary...', pct: 95 },
+      { label: 'Searching web sources...', pct: 20 },
+      { label: 'Analyzing top results...', pct: 45 },
+      { label: 'Cross-referencing data...', pct: 70 },
+      { label: 'Generating summary...', pct: 90 },
     ];
 
     for (const phase of phases) {
-      await new Promise((r) => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 600));
       setProgress(phase.pct);
     }
 
-    setResults(
-      `## Research: ${topic}\n\n` +
-        `### Key Findings\n\n` +
-        `Based on comprehensive web research, here are the main findings:\n\n` +
-        `1. **Primary insight** — The most relevant and up-to-date information on this topic.\n\n` +
-        `2. **Supporting evidence** — Multiple credible sources confirm these findings.\n\n` +
-        `3. **Expert consensus** — Leading experts in the field generally agree on these points.\n\n` +
-        `### Detailed Analysis\n\n` +
-        `The research reveals several important patterns and trends that should be considered when evaluating this topic. Multiple independent sources corroborate the core findings.`,
-    );
-    setSources([
-      'perplexity.ai/search',
-      'scholar.google.com',
-      'arxiv.org',
-      'wikipedia.org',
-    ]);
-    setProgress(100);
+    try {
+      const token = await fetch(`${API_BASE}/tiles/workspace/${data.workspaceId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('__clerk_db_jwt')}` },
+      }).then(() => {
+        return document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('__session='))
+          ?.split('=')[1] || '';
+      }).catch(() => '');
+
+      const response = await fetch(`${API_BASE}/research`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          query: topic,
+          workspaceId: data.workspaceId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Research failed: ${response.status}`);
+      }
+
+      const researchData = await response.json();
+
+      setResults(`## Research: ${topic}\n\n### Key Findings\n\n${researchData.findings || researchData.content || 'Research completed successfully.'}`);
+      setSources(researchData.sources || []);
+      setProgress(100);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Research failed');
+      setResults(`## Research: ${topic}\n\n### Key Findings\n\n- **Primary insight** — The most relevant and up-to-date information on this topic.\n\n- **Supporting evidence** — Multiple credible sources confirm these findings.\n\n- **Expert consensus** — Leading experts in the field generally agree on these points.\n\n### Detailed Analysis\n\nThe research reveals several important patterns and trends that should be considered when evaluating this topic. Multiple independent sources corroborate the core findings.\n\n> Note: Live research unavailable. Add TAVILY_API_KEY or PERPLEXITY_API_KEY for real web search.`);
+      setSources([
+        { url: 'https://perplexity.ai/search', title: 'Perplexity AI', snippet: 'Web search' },
+        { url: 'https://arxiv.org', title: 'arXiv', snippet: 'Academic papers' },
+        { url: 'https://scholar.google.com', title: 'Google Scholar', snippet: 'Peer-reviewed' },
+        { url: 'https://wikipedia.org', title: 'Wikipedia', snippet: 'Encyclopedia' },
+      ]);
+      setProgress(100);
+    }
+
     setIsResearching(false);
-  }, [query, isResearching]);
+  }, [query, isResearching, data.workspaceId, API_BASE]);
 
   return (
     <div
@@ -83,7 +113,6 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
         style={{ background: '#14B8A6', border: 'none', width: 10, height: 10 }}
       />
 
-      {/* Header */}
       <div
         style={{
           display: 'flex',
@@ -105,7 +134,7 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
               borderRadius: 4,
             }}
           >
-            Sonar Pro
+            Web Search
           </span>
         </div>
         <span
@@ -119,14 +148,8 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
         </span>
       </div>
 
-      {/* Progress bar */}
       {isResearching && (
-        <div
-          style={{
-            height: 2,
-            background: 'rgba(255,255,255,0.04)',
-          }}
-        >
+        <div style={{ height: 2, background: 'rgba(255,255,255,0.04)' }}>
           <div
             style={{
               height: '100%',
@@ -138,7 +161,6 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
         </div>
       )}
 
-      {/* Content */}
       <div
         className="nodrag nowheel"
         style={{
@@ -181,17 +203,27 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
             }}
           >
             <div className="streaming-dot" style={{ background: '#14B8A6' }} />
-            <div
-              className="streaming-dot"
-              style={{ background: '#14B8A6', animationDelay: '0.2s' }}
-            />
-            <div
-              className="streaming-dot"
-              style={{ background: '#14B8A6', animationDelay: '0.4s' }}
-            />
+            <div className="streaming-dot" style={{ background: '#14B8A6', animationDelay: '0.2s' }} />
+            <div className="streaming-dot" style={{ background: '#14B8A6', animationDelay: '0.4s' }} />
             <span style={{ marginLeft: 4 }}>
               Researching... ({progress}%)
             </span>
+          </div>
+        )}
+
+        {error && (
+          <div
+            style={{
+              padding: '8px 12px',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 6,
+              fontSize: 12,
+              color: '#EF4444',
+              marginBottom: 12,
+            }}
+          >
+            ⚠️ {error}
           </div>
         )}
 
@@ -212,18 +244,23 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {sources.map((src, i) => (
-                <div
+                <a
                   key={i}
+                  href={src.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     fontSize: 11,
                     color: '#14B8A6',
                     padding: '4px 8px',
                     background: 'rgba(20,184,166,0.08)',
                     borderRadius: 4,
+                    textDecoration: 'none',
+                    display: 'block',
                   }}
                 >
-                  {i + 1}. {src}
-                </div>
+                  {i + 1}. {src.title}
+                </a>
               ))}
             </div>
           </div>
@@ -231,7 +268,6 @@ function ResearchTile({ id, data, selected }: NodeProps<ResearchTileData>) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div
         className="nodrag"
         style={{

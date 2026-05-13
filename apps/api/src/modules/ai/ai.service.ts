@@ -3,12 +3,11 @@
 // ═══════════════════════════════════════════════════════════
 
 import { Injectable, Logger } from '@nestjs/common';
-import type { AuthenticatedUser } from '../../common/types';
 
 interface StreamOptions {
   model: string;
   messages: Array<{ role: string; content: string }>;
-  user: AuthenticatedUser;
+  user: { id: string; byokOpenaiKey?: string | null; byokAnthropicKey?: string | null };
   byokKey?: string | null;
   maxTokens?: number;
 }
@@ -32,32 +31,59 @@ export class AIService {
   async *createStream(options: StreamOptions): AsyncGenerator<StreamChunk> {
     const { model, messages, maxTokens = 4096 } = options;
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENROUTER_API_KEY not configured');
-    }
-
-    // Resolve model ID to OpenRouter model string
     const openRouterId = this.resolveModelId(model);
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    let apiKey = process.env.OPENROUTER_API_KEY;
+    if (options.byokKey) {
+      const keyProvider = this.getKeyProvider(model);
+      if (keyProvider === 'openai' && options.byokKey) {
+        apiKey = options.byokKey;
+      } else if (keyProvider === 'anthropic' && options.user.byokAnthropicKey) {
+        apiKey = options.user.byokAnthropicKey;
+      }
+    }
+
+    if (!apiKey) {
+      throw new Error('No API key configured');
+    }
+
+    const isDirectApi = this.isDirectApiModel(openRouterId);
+    const endpoint = isDirectApi
+      ? this.getDirectApiEndpoint(openRouterId)
+      : 'https://openrouter.ai/api/v1/chat/completions';
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'HTTP-Referer': process.env.FRONTEND_URL || 'https://vel.ai',
+      'X-Title': 'VEL AI Workspace',
+    };
+
+    if (isDirectApi) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    } else {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+
+    const requestBody: Record<string, unknown> = isDirectApi
+      ? {
+          model: this.getDirectModelId(openRouterId),
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          max_tokens: maxTokens,
+          stream: true,
+          ...(openRouterId.includes('claude') ? {} : { temperature: 0.7 }),
+        }
+      : {
+          model: openRouterId,
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          max_tokens: maxTokens,
+          stream: true,
+          temperature: 0.7,
+        };
+
+    const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.FRONTEND_URL || 'https://vel.ai',
-        'X-Title': 'VEL AI Workspace',
-      },
-      body: JSON.stringify({
-        model: openRouterId,
-        messages: messages.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
-        max_tokens: maxTokens,
-        stream: true,
-        temperature: 0.7,
-      }),
+      headers,
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -106,10 +132,8 @@ export class AIService {
   }
 
   private resolveModelId(modelId: string): string {
-    // If already an OpenRouter model string, pass through
     if (modelId.includes('/')) return modelId;
 
-    // Map our model IDs to OpenRouter
     const modelMap: Record<string, string> = {
       'claude-opus-4': 'anthropic/claude-opus-4',
       'claude-sonnet-4': 'anthropic/claude-sonnet-4',
@@ -123,8 +147,43 @@ export class AIService {
       'perplexity-sonar-pro': 'perplexity/sonar-pro',
       'grok-3': 'x-ai/grok-3-beta',
       'llama-3-3-70b': 'meta-llama/llama-3.3-70b-instruct',
+      'glm-4-5-air': 'z-ai/glm-4.5-air',
+      'hermes-3-405b': 'nousresearch/hermes-3-405b-instruct',
+      'qwen3-coder': 'qwen/qwen3-coder-480b-a35b',
+      'nemotron-super': 'nvidia/nemotron-3-super-512b',
+      'mistral-small': 'mistralai/mistral-small-3.1-24b-instruct',
     };
 
     return modelMap[modelId] || modelId;
+  }
+
+  private getKeyProvider(modelId: string): 'openai' | 'anthropic' | 'openrouter' {
+    if (modelId.includes('openai') || modelId.includes('gpt')) return 'openai';
+    if (modelId.includes('anthropic') || modelId.includes('claude')) return 'anthropic';
+    return 'openrouter';
+  }
+
+  private isDirectApiModel(modelId: string): boolean {
+    return modelId.includes('anthropic') || modelId.includes('openai');
+  }
+
+  private getDirectApiEndpoint(modelId: string): string {
+    if (modelId.includes('anthropic')) {
+      return 'https://api.anthropic.com/v1/messages';
+    }
+    if (modelId.includes('openai')) {
+      return 'https://api.openai.com/v1/chat/completions';
+    }
+    return 'https://openrouter.ai/api/v1/chat/completions';
+  }
+
+  private getDirectModelId(modelId: string): string {
+    if (modelId.includes('claude-opus-4')) return 'claude-opus-4-20250514';
+    if (modelId.includes('claude-sonnet-4')) return 'claude-sonnet-4-20250514';
+    if (modelId.includes('claude-haiku')) return 'claude-3-5-haiku-20240620';
+    if (modelId.includes('gpt-4o')) return 'gpt-4o';
+    if (modelId.includes('gpt-4.1')) return 'gpt-4.1';
+    if (modelId.includes('o3-mini')) return 'o3-mini';
+    return modelId;
   }
 }

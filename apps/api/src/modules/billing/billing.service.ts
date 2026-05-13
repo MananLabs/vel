@@ -161,25 +161,20 @@ export class BillingService {
   }
 
   async handleCheckoutCompleted(
-    session: Stripe.CheckoutSession,
+    session: { metadata?: Record<string, string>; amount_total?: number; customer?: string | null },
   ): Promise<void> {
     const userId = session.metadata?.userId;
     if (!userId) return;
 
     if (session.metadata?.type === 'top_up') {
-      // Credit top-up
       const creditAmount = this.getCreditAmountFromPrice(
         session.amount_total || 0,
       );
       await this.creditsService.addCredits(userId, creditAmount, 'top_up');
     }
 
-    // Link Stripe customer to user
     if (session.customer) {
-      const customerId =
-        typeof session.customer === 'string'
-          ? session.customer
-          : session.customer.id;
+      const customerId = typeof session.customer === 'string' ? session.customer : '';
       await db
         .update(users)
         .set({ stripeCustomerId: customerId, updatedAt: new Date() })

@@ -10,6 +10,7 @@ import {
   Res,
   UseGuards,
   HttpCode,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
@@ -21,17 +22,22 @@ import { AIService } from './ai.service';
 import { ContextService } from '../context/context.service';
 import { CreditsService } from '../credits/credits.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { WorkspaceService } from '../workspace/workspace.service';
 import { StreamAIDto } from './dto/stream-ai.dto';
 import type { AuthenticatedRequest } from '../../common/types';
+import { CONSENSUS_CREDITS, CONSENSUS_MODEL_IDS } from '@vel-ai/shared/types/models';
 
 @Controller('ai')
 @UseGuards(ClerkAuthGuard)
 export class AIController {
+  private readonly CONSENSUS_COST = 19;
+
   constructor(
     private readonly aiService: AIService,
     private readonly contextService: ContextService,
     private readonly creditsService: CreditsService,
     private readonly analyticsService: AnalyticsService,
+    private readonly workspaceService: WorkspaceService,
   ) {}
 
   @Post('stream')
@@ -43,6 +49,16 @@ export class AIController {
     @Res() res: Response,
   ): Promise<void> {
     const startTime = Date.now();
+
+    const canAccess = await this.workspaceService.verifyOwnership(
+      dto.workspaceId,
+      req.user.id,
+    );
+    if (!canAccess) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(403).end(JSON.stringify({ error: 'Workspace access denied' }));
+      return;
+    }
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -56,7 +72,6 @@ export class AIController {
     let fullContent = '';
 
     try {
-      // Build messages with injected context from connected tiles
       const messagesWithContext =
         await this.contextService.buildContextualMessages(
           dto.workspaceId,
@@ -100,7 +115,6 @@ export class AIController {
       );
       res.end();
 
-      // Async post-stream (non-blocking)
       setImmediate(async () => {
         try {
           await this.contextService.updateTileContext(
@@ -157,36 +171,53 @@ export class AIController {
     },
     @Res() res: Response,
   ): Promise<void> {
+    const canAccess = await this.workspaceService.verifyOwnership(
+      dto.workspaceId,
+      req.user.id,
+    );
+    if (!canAccess) {
+      res.setHeader('Content-Type', 'application/json');
+      res.status(403).end(JSON.stringify({ error: 'Workspace access denied' }));
+      return;
+    }
+
+    const reservedCredits = await this.creditsService.reserveCredits(
+      req.user.id,
+      dto.requestId,
+      'consensus',
+    ).catch(() => null);
+
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
+    const CONSENSUS_MODELS = [
+      {
+        id: 'claude-sonnet-4',
+        openRouterId: 'anthropic/claude-sonnet-4',
+        label: 'claude' as const,
+      },
+      {
+        id: 'gpt-4o',
+        openRouterId: 'openai/gpt-4o',
+        label: 'gpt' as const,
+      },
+      {
+        id: 'gemini-1-5-pro',
+        openRouterId: 'google/gemini-pro-1.5',
+        label: 'gemini' as const,
+      },
+    ];
+
+    const chatMessages = [
+      { role: 'user' as const, content: dto.prompt },
+    ];
+    const results: Record<string, string> = {};
+    let successCount = 0;
+
     try {
-      const CONSENSUS_MODELS = [
-        {
-          id: 'claude-sonnet-4',
-          openRouterId: 'anthropic/claude-sonnet-4',
-          label: 'claude' as const,
-        },
-        {
-          id: 'gpt-4o',
-          openRouterId: 'openai/gpt-4o',
-          label: 'gpt' as const,
-        },
-        {
-          id: 'gemini-1-5-pro',
-          openRouterId: 'google/gemini-pro-1.5',
-          label: 'gemini' as const,
-        },
-      ];
-
-      const chatMessages = [
-        { role: 'user' as const, content: dto.prompt },
-      ];
-      const results: Record<string, string> = {};
-
       await Promise.allSettled(
         CONSENSUS_MODELS.map(async (model) => {
           try {
@@ -212,6 +243,7 @@ export class AIController {
               }
             }
             results[model.label] = content;
+            successCount++;
           } catch (err) {
             const message = err instanceof Error ? err.message : 'Unknown error';
             res.write(
@@ -225,8 +257,7 @@ export class AIController {
         }),
       );
 
-      // Generate AI synthesis if at least 2 models responded
-      if (Object.keys(results).length >= 2) {
+      if (successCount >= 2) {
         res.write(
           `data: ${JSON.stringify({ type: 'synthesis_start' })}\n\n`,
         );
@@ -268,12 +299,31 @@ Be concise and direct.`;
 
       res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
       res.end();
+
+      if (reservedCredits) {
+        setImmediate(async () => {
+          try {
+            await this.creditsService.finalizeDeduction(
+              req.user.id,
+              dto.requestId,
+              'consensus',
+              0,
+              0,
+            );
+          } catch (err) {
+            console.error('Consensus credit deduction error:', err);
+          }
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       res.write(
         `data: ${JSON.stringify({ type: 'error', message })}\n\n`,
       );
       res.end();
+      if (dto.requestId) {
+        await this.creditsService.releaseReservation(req.user.id, dto.requestId);
+      }
     }
   }
 }
