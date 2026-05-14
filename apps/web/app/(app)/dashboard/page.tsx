@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useAuth, UserButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
+import { NewWorkspaceModal } from '@/components/workspace/NewWorkspaceModal';
 
 const MOCK_WORKSPACES = [
   {
@@ -30,49 +31,8 @@ const MOCK_WORKSPACES = [
   },
 ];
 
-const TEMPLATES = [
-  {
-    id: 'blank',
-    name: 'Blank Canvas',
-    icon: '◻',
-    desc: 'Start from scratch',
-  },
-  {
-    id: 'research',
-    name: 'Research Sprint',
-    icon: '🔍',
-    desc: 'Claude + Sonar + Gemini',
-  },
-  {
-    id: 'code',
-    name: 'Code Review',
-    icon: '💻',
-    desc: 'Claude + Codex + Terminal',
-  },
-  {
-    id: 'consensus',
-    name: 'Decision Engine',
-    icon: '⚡',
-    desc: 'Consensus Mode + Research',
-  },
-  {
-    id: 'content',
-    name: 'Content Pipeline',
-    icon: '✍️',
-    desc: 'Multi-model content generation',
-  },
-  {
-    id: 'analysis',
-    name: 'Data Analysis',
-    icon: '📊',
-    desc: 'Gemini + Claude + Sheets',
-  },
-];
-
 export default function DashboardPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('blank');
 
   return (
     <div
@@ -99,7 +59,7 @@ export default function DashboardPage() {
             gap: 10,
           }}
         >
-          <Image src="/logo.avif" alt="VEL AI logo" width={32} height={32} />
+          <Image src="/logo.png" alt="VEL AI logo" width={32} height={32} />
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em' }}>
             VEL AI
           </span>
@@ -319,145 +279,10 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-          }}
-          onClick={() => setShowCreateModal(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--vel-bg-surface)',
-              border: '1px solid var(--vel-border-default)',
-              borderRadius: 16,
-              padding: 32,
-              width: 520,
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              boxShadow: 'var(--shadow-modal)',
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: 'Clash Display, sans-serif',
-                fontSize: 24,
-                fontWeight: 700,
-                marginBottom: 24,
-              }}
-            >
-              Create Workspace
-            </h2>
-
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Workspace name..."
-              autoFocus
-              style={{
-                width: '100%',
-                background: 'var(--vel-bg-elevated)',
-                border: '1px solid var(--vel-border-subtle)',
-                borderRadius: 10,
-                padding: '12px 16px',
-                color: 'var(--vel-text-primary)',
-                fontFamily: 'DM Sans, sans-serif',
-                fontSize: 14,
-                outline: 'none',
-                marginBottom: 24,
-              }}
-            />
-
-            <p
-              style={{
-                fontSize: 12,
-                color: 'var(--vel-text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                marginBottom: 12,
-              }}
-            >
-              Choose a template
-            </p>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 8,
-                marginBottom: 24,
-              }}
-            >
-              {TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedTemplate(t.id)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '16px 8px',
-                    background:
-                      selectedTemplate === t.id
-                        ? 'var(--vel-accent-muted)'
-                        : 'transparent',
-                    border: `1px solid ${
-                      selectedTemplate === t.id
-                        ? 'var(--vel-border-active)'
-                        : 'var(--vel-border-subtle)'
-                    }`,
-                    borderRadius: 10,
-                    color: 'var(--vel-text-primary)',
-                    cursor: 'pointer',
-                    transition: 'all 150ms',
-                    fontFamily: 'DM Sans, sans-serif',
-                  }}
-                >
-                  <span style={{ fontSize: 20 }}>{t.icon}</span>
-                  <span style={{ fontSize: 12, fontWeight: 500 }}>
-                    {t.name}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      color: 'var(--vel-text-muted)',
-                    }}
-                  >
-                    {t.desc}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button
-                className="btn-secondary"
-                onClick={() => setShowCreateModal(false)}
-              >
-                Cancel
-              </button>
-              <Link
-                href="/workspace/new"
-                className="btn-primary"
-                style={{ textDecoration: 'none' }}
-              >
-                Create Workspace
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <NewWorkspaceModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
     </div>
   );
 }
