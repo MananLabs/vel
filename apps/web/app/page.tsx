@@ -2,6 +2,7 @@
 
 import { Nav } from '@/components/marketing/Nav';
 import { Hero } from '@/components/marketing/Hero';
+import { CapabilityShowcase } from '@/components/marketing/capability-showcase';
 import { FeatureGrid } from '@/components/marketing/FeatureGrid';
 import { TerminalShowcase } from '@/components/marketing/TerminalShowcase';
 import { ModelGrid } from '@/components/marketing/ModelGrid';
@@ -14,6 +15,7 @@ export default function LandingPage() {
     <div className="min-h-screen grok-page-bg text-white overflow-hidden">
       <Nav />
       <Hero />
+      <CapabilityShowcase />
       <FeatureGrid />
       <TerminalShowcase />
       <ModelGrid />

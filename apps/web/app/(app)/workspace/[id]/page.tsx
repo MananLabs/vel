@@ -30,7 +30,7 @@ export default function WorkspacePage() {
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        background: 'var(--vel-bg-void)',
+        background: 'transparent',
       }}
     >
       {/* Workspace header */}

@@ -7,7 +7,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--vel-black)',
+        background: 'transparent',
         color: '#E8E8E8',
       }}
     >

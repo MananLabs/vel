@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import MagicBento from '@/components/marketing/MagicBento';
 
 const SWARM_ITEMS = [
   { label: 'Ask once, compare instantly', color: 'bg-emerald-400' },
@@ -45,9 +46,22 @@ function HeroInner() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.12 }}
-          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+          className="relative"
         >
-          <article className="rounded-3xl border border-white/10 bg-black/55 p-7 md:col-span-1 bento-card">
+          <MagicBento
+            className="grid grid-cols-1 gap-4 md:grid-cols-3"
+            textAutoHide={true}
+            enableStars={true}
+            enableSpotlight={true}
+            enableBorderGlow={true}
+            enableTilt={true}
+            enableMagnetism={true}
+            clickEffect={true}
+            spotlightRadius={300}
+            particleCount={12}
+            glowColor="255, 255, 255"
+          >
+          <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 md:col-span-1 bento-card">
             <div className="space-y-3">
               {SWARM_ITEMS.map((item) => (
                 <div key={item.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3">
@@ -62,7 +76,7 @@ function HeroInner() {
             </p>
           </article>
 
-          <article className="rounded-3xl border border-white/10 bg-black/55 p-7 md:col-span-2 bento-card relative overflow-hidden">
+          <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 md:col-span-2 bento-card relative overflow-hidden">
             <div className="absolute inset-0 opacity-70" style={{ background: 'radial-gradient(55% 55% at 50% 0%, rgba(94,144,255,0.15) 0%, transparent 72%)' }} />
             <div className="relative min-h-[220px]">
               <svg viewBox="0 0 600 220" className="h-[220px] w-full">
@@ -98,7 +112,7 @@ function HeroInner() {
             </p>
           </article>
 
-          <article className="rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
+          <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
             <div className="mb-16 mx-auto h-40 w-40 rounded-full border border-white/10 bg-gradient-to-b from-white/10 to-transparent relative">
               <div className="absolute inset-5 rounded-full border border-white/10" />
               <div className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
@@ -109,7 +123,7 @@ function HeroInner() {
             </p>
           </article>
 
-          <article className="rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
+          <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
             <div className="mb-10 rounded-2xl border border-white/10 bg-[#08090f] p-4 font-mono text-sm text-white/70">
               <div className="mb-2 text-white/30">chat.tsx</div>
               <div>model: &quot;gpt-4o&quot;</div>
@@ -123,12 +137,45 @@ function HeroInner() {
             </p>
           </article>
 
-          <article className="rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
+          <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 bento-card min-h-[290px] flex flex-col justify-end">
             <div className="mb-16 flex h-40 items-center justify-center">
-              <div className="flex items-end gap-2">
-                {[28, 40, 24, 52, 32, 61, 36].map((h, i) => (
-                  <div key={i} className="w-3 rounded-md bg-white/22" style={{ height: `${h}px` }} />
-                ))}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <svg
+                  viewBox="0 0 64 64"
+                  className="h-20 w-20 text-white/95"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
+                >
+                  <path
+                    d="M21 18.5L42.5 9.5C44.4 8.7 46.5 9.6 47.3 11.5L49.8 17.7C50.6 19.6 49.7 21.7 47.8 22.5L26.3 31.5"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M17 22.5L26.3 31.5L21.4 36.8L12.5 28"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M34.5 37L22.5 50.5"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M18.5 45L22.5 50.5L27 55.5"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="53.5" cy="14" r="2.7" fill="currentColor" />
+                </svg>
               </div>
             </div>
             <h3 className="text-[clamp(30px,2.6vw,35px)] font-semibold tracking-tight text-white">Deep Research</h3>
@@ -136,6 +183,7 @@ function HeroInner() {
               Pull live web context and citations before you trust an answer.
             </p>
           </article>
+          </MagicBento>
         </motion.div>
       </div>
     </section>

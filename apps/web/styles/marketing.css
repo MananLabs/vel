@@ -38,9 +38,15 @@
 
   .grok-page-bg {
     background:
+      linear-gradient(180deg, rgba(5, 7, 12, 0.2) 0%, rgba(5, 7, 12, 0.35) 100%),
       radial-gradient(65% 45% at 80% 2%, rgba(255, 255, 255, 0.1) 0%, transparent 52%),
       radial-gradient(50% 35% at 15% 18%, rgba(255, 255, 255, 0.06) 0%, transparent 58%),
-      linear-gradient(180deg, var(--grok-bg-1) 0%, var(--grok-bg-0) 60%, #020203 100%);
+      linear-gradient(180deg, rgba(9, 10, 12, 0.65) 0%, rgba(4, 5, 6, 0.78) 60%, rgba(2, 2, 3, 0.86) 100%),
+      url('/bg2.avif');
+    background-size: auto, auto, auto, auto, cover;
+    background-position: center, 80% 2%, 15% 18%, center, center;
+    background-attachment: scroll, scroll, scroll, scroll, fixed;
+    background-repeat: no-repeat;
   }
 
   .grok-grid-overlay {
@@ -58,6 +64,63 @@
     pointer-events: none;
     background: radial-gradient(closest-side, rgba(255, 255, 255, 0.12), transparent 75%);
     filter: blur(24px);
+  }
+
+  @media (max-width: 1024px), (pointer: coarse) {
+    .grok-page-bg {
+      background-attachment: scroll, scroll, scroll, scroll, scroll;
+    }
+  }
+}
+
+@layer utilities {
+  .capability-grid {
+    position: relative;
+  }
+
+  .capability-grid::before,
+  .capability-grid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.02) 100%);
+    pointer-events: none;
+    display: none;
+  }
+
+  .capability-grid::before {
+    left: 33.333%;
+  }
+
+  .capability-grid::after {
+    left: 66.666%;
+  }
+
+  @media (min-width: 1280px) {
+    .capability-grid::before,
+    .capability-grid::after {
+      display: block;
+    }
+  }
+
+  .capability-panel {
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 62%),
+      linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%),
+      rgba(2, 4, 8, 0.72);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      0 24px 60px rgba(0,0,0,0.42),
+      0 0 0 1px rgba(255,255,255,0.02);
+    backdrop-filter: blur(8px);
+  }
+
+  .capability-panel:hover {
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-2px);
+    transition: transform 220ms ease, border-color 220ms ease;
   }
 }
 

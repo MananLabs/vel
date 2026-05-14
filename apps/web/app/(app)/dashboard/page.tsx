@@ -77,7 +77,7 @@ export default function DashboardPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--vel-bg-void)',
+        background: 'transparent',
         color: 'var(--vel-text-primary)',
       }}
     >

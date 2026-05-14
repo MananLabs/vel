@@ -69,11 +69,23 @@
 
 html, body {
   height: 100%;
-  background: var(--vel-black);
+  background:
+    linear-gradient(180deg, rgba(5, 7, 12, 0.42) 0%, rgba(5, 7, 12, 0.58) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E"),
+    url('/bg2.avif');
+  background-size: auto, 220px 220px, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
   color: var(--vel-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+@media (max-width: 1024px), (pointer: coarse) {
+  html, body {
+    background-attachment: scroll, scroll, scroll;
+  }
 }
 
 /* ── Scrollbar ──────────────────────────────────────────── */
