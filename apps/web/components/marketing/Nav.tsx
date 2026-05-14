@@ -3,6 +3,8 @@
 import { memo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { Button as MovingBorderButton } from '@/components/ui/moving-border';
 
 function NavInner() {
   return (
@@ -14,7 +16,9 @@ function NavInner() {
     >
       <div className="mx-auto flex w-full max-w-[860px] items-center justify-between rounded-full border border-white/12 bg-black/60 px-4 py-2 backdrop-blur-xl">
         <Link href="/" className="flex items-center gap-3 text-white no-underline">
-          <div className="h-8 w-8 rounded-full border border-white/15 bg-white/5 grid place-items-center text-xs font-bold">V</div>
+          <div className="h-8 w-8 overflow-hidden rounded-full border border-white/15 bg-white/5 grid place-items-center">
+            <Image src="/logo.avif" alt="VEL AI logo" width={26} height={26} />
+          </div>
           <span className="text-sm font-medium tracking-tight">VEL AI</span>
         </Link>
 
@@ -32,12 +36,17 @@ function NavInner() {
 
         <div className="flex items-center gap-2">
           <a href="/sign-in" className="hidden sm:inline text-xs text-white/60 no-underline hover:text-white transition">Login</a>
-          <Link
+          <MovingBorderButton
+            as={Link}
             href="/sign-up"
-            className="rounded-full border border-white/18 bg-white/5 px-4 py-2 text-xs font-semibold text-white no-underline transition hover:bg-white/10"
+            borderRadius="999px"
+            duration={2800}
+            containerClassName="h-9 w-auto px-[1px] no-underline"
+            className="px-4 bg-black/75 text-xs font-semibold text-white border-white/20"
+            borderClassName="bg-[radial-gradient(#8CC8FF_40%,transparent_60%)]"
           >
             Launch App
-          </Link>
+          </MovingBorderButton>
         </div>
       </div>
     </motion.nav>

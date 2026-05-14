@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const SignIn = dynamic(
   () => import('@clerk/nextjs').then((module) => module.SignIn),
@@ -66,8 +67,8 @@ export default function SignInPage() {
             boxShadow: '0 24px 64px rgba(0,0,0,0.4)'
           }}
         >
-          <div style={{ width: 48, height: 48, background: '#6D5FFF', borderRadius: 12, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontSize: 24 }}>✧</span>
+          <div style={{ width: 56, height: 56, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Image src="/logo.avif" alt="VEL AI logo" width={56} height={56} />
           </div>
           <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 28, fontWeight: 600, marginBottom: 12, color: '#FFF' }}>
             Welcome Back

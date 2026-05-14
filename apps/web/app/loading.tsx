@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export default function Loading() {
   const [progress, setProgress] = useState(0);
@@ -40,8 +41,8 @@ export default function Loading() {
         fontFamily: "'Press Start 2P', monospace",
       }}
     >
-      <div style={{ fontSize: 14, color: '#FFFFFF', marginBottom: 48, letterSpacing: '0.08em' }}>
-        VEL.AI
+      <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Image src="/logo.avif" alt="VEL AI logo" width={56} height={56} />
       </div>
 
       <div

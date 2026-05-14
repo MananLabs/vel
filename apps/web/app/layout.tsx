@@ -54,6 +54,11 @@ export const metadata: Metadata = {
     title: 'VEL AI',
     description: 'The Infinite Multi-Agent AI Operating Workspace',
   },
+  icons: {
+    icon: '/logo.avif',
+    shortcut: '/logo.avif',
+    apple: '/logo.avif',
+  },
 };
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;

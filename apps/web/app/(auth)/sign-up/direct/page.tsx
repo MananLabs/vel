@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DirectSignUp() {
   const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
@@ -109,17 +110,15 @@ export default function DirectSignUp() {
       >
         <div
           style={{
-            width: 48,
-            height: 48,
-            background: '#6D5FFF',
-            borderRadius: 12,
+            width: 56,
+            height: 56,
             margin: '0 auto 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <span style={{ color: 'white', fontSize: 24 }}>✧</span>
+          <Image src="/logo.avif" alt="VEL AI logo" width={56} height={56} />
         </div>
 
         <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 28, fontWeight: 600, marginBottom: 8, color: '#FFF' }}>

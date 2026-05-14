@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth, UserButton } from '@clerk/nextjs';
+import Image from 'next/image';
 
 const MOCK_WORKSPACES = [
   {
@@ -93,16 +94,15 @@ export default function DashboardPage() {
       >
         <div
           style={{
-            fontFamily: 'Clash Display, sans-serif',
-            fontSize: 22,
-            fontWeight: 700,
             display: 'flex',
-            alignItems: 'baseline',
-            gap: 6,
+            alignItems: 'center',
+            gap: 10,
           }}
         >
-          <span style={{ color: '#6D5FFF' }}>VEL</span>
-          <span style={{ fontWeight: 300 }}>AI</span>
+          <Image src="/logo.avif" alt="VEL AI logo" width={32} height={32} />
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em' }}>
+            VEL AI
+          </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

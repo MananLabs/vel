@@ -11,6 +11,7 @@ import { useActivityStore } from '@/lib/stores/activity.store';
 import { useModelPreferencesStore } from '@/lib/stores/model-preferences.store';
 import { getAvailableModels, getModelsForPlan } from '@vel-ai/shared/types/models';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function WorkspacePage() {
   const params = useParams();
@@ -108,17 +109,25 @@ export default function WorkspacePage() {
           <Link
             href="/dashboard"
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 44,
-              lineHeight: 0.95,
-              fontWeight: 700,
-              letterSpacing: '-0.04em',
               textDecoration: 'none',
               color: 'var(--vel-text)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
             }}
           >
-            VEL
-            <span style={{ color: 'var(--vel-violet)' }}>.AI</span>
+            <Image src="/logo.avif" alt="VEL AI logo" width={36} height={36} />
+            <span
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 30,
+                lineHeight: 1,
+                fontWeight: 700,
+                letterSpacing: '-0.03em',
+              }}
+            >
+              VEL AI
+            </span>
           </Link>
         </div>
 

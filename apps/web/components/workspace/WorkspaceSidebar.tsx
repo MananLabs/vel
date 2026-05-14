@@ -3,6 +3,7 @@
 import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn, staggerContainer } from '@/lib/motion';
+import Image from 'next/image';
 
 interface Workspace {
   id: string;
@@ -75,18 +76,20 @@ function WorkspaceSidebarInner({
           borderBottom: '1px solid var(--vel-border-subtle)',
         }}
       >
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: 18,
-            color: 'var(--vel-text)',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          VEL
-          <span style={{ color: 'var(--vel-violet)' }}>.</span>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Image src="/logo.avif" alt="VEL AI logo" width={24} height={24} />
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              fontSize: 16,
+              color: 'var(--vel-text)',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            VEL AI
+          </span>
+        </div>
       </div>
 
       {/* Create */}
