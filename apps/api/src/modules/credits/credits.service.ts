@@ -19,11 +19,14 @@ export class CreditsService {
     userId: string,
     requestId: string,
     modelId: string,
+    creditsOverride?: number,
   ): Promise<number> {
-    const model = getModel(modelId);
-    if (!model) throw new ForbiddenException('Unknown model');
+    const model = creditsOverride == null ? getModel(modelId) : undefined;
+    if (!model && creditsOverride == null) {
+      throw new ForbiddenException('Unknown model');
+    }
 
-    const estimatedCredits = model.creditsPerMessage;
+    const estimatedCredits = creditsOverride ?? model!.creditsPerMessage;
     const lockKey = this.redis.creditLockKey(userId, requestId);
 
     const locked = await this.redis.setNX(
@@ -52,9 +55,10 @@ export class CreditsService {
     modelId: string,
     tokensIn: number,
     tokensOut: number,
+    creditsOverride?: number,
   ): Promise<void> {
-    const model = getModel(modelId);
-    const creditsToDeduct = model?.creditsPerMessage || 5;
+    const model = creditsOverride == null ? getModel(modelId) : undefined;
+    const creditsToDeduct = creditsOverride ?? model?.creditsPerMessage ?? 5;
 
     try {
       await db

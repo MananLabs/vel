@@ -2,7 +2,14 @@
 // VEL AI — AI Stream DTO
 // ═══════════════════════════════════════════════════════════
 
-import { IsString, IsArray, IsOptional, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class StreamAIDto {
   @IsString()
@@ -32,4 +39,9 @@ export class StreamAIDto {
 
   @IsString()
   requestId!: string;
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  modelIds?: string[];
 }

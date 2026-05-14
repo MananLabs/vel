@@ -25,7 +25,12 @@ import { AnalyticsService } from '../analytics/analytics.service';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { StreamAIDto } from './dto/stream-ai.dto';
 import type { AuthenticatedRequest } from '../../common/types';
-import { CONSENSUS_CREDITS, CONSENSUS_MODEL_IDS } from '@vel-ai/shared/types/models';
+import {
+  CONSENSUS_CREDITS,
+  CONSENSUS_MODEL_IDS,
+  getAvailableModels,
+  getModel,
+} from '@vel-ai/shared/types/models';
 
 @Controller('ai')
 @UseGuards(ClerkAuthGuard)
@@ -168,6 +173,7 @@ export class AIController {
       workspaceId: string;
       tileId: string;
       requestId: string;
+      modelIds?: string[];
     },
     @Res() res: Response,
   ): Promise<void> {
@@ -181,10 +187,32 @@ export class AIController {
       return;
     }
 
+    const requestedModelIds = Array.isArray(dto.modelIds)
+      ? dto.modelIds.filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+      : [];
+
+    const fallbackModels = CONSENSUS_MODEL_IDS
+      .map((id) => getModel(id))
+      .filter((model): model is NonNullable<ReturnType<typeof getModel>> => Boolean(model));
+    const selectedModels = (
+      requestedModelIds.length > 0
+        ? requestedModelIds
+            .map((id) => getModel(id))
+            .filter((model): model is NonNullable<ReturnType<typeof getModel>> => Boolean(model))
+        : fallbackModels
+    ).filter((model, index, arr) => arr.findIndex((m) => m.id === model.id) === index);
+
+    const availableModels = getAvailableModels();
+    const finalModels = selectedModels.filter((model) =>
+      availableModels.some((available) => available.id === model.id),
+    );
+
+    const consensusModels = finalModels.length > 0 ? finalModels : fallbackModels;
     const reservedCredits = await this.creditsService.reserveCredits(
       req.user.id,
       dto.requestId,
       'consensus',
+      consensusModels.reduce((total, model) => total + model.creditsPerMessage, 0),
     ).catch(() => null);
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -192,24 +220,6 @@ export class AIController {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
-
-    const CONSENSUS_MODELS = [
-      {
-        id: 'claude-sonnet-4',
-        openRouterId: 'anthropic/claude-sonnet-4',
-        label: 'claude' as const,
-      },
-      {
-        id: 'gpt-4o',
-        openRouterId: 'openai/gpt-4o',
-        label: 'gpt' as const,
-      },
-      {
-        id: 'gemini-1-5-pro',
-        openRouterId: 'google/gemini-pro-1.5',
-        label: 'gemini' as const,
-      },
-    ];
 
     const chatMessages = [
       { role: 'user' as const, content: dto.prompt },
@@ -219,7 +229,7 @@ export class AIController {
 
     try {
       await Promise.allSettled(
-        CONSENSUS_MODELS.map(async (model) => {
+        consensusModels.map(async (model) => {
           try {
             const stream = this.aiService.createStream({
               model: model.openRouterId,
@@ -237,19 +247,19 @@ export class AIController {
                   `data: ${JSON.stringify({
                     type: 'delta',
                     model: model.label,
-                    content: delta,
+                content: delta,
                   })}\n\n`,
                 );
               }
             }
-            results[model.label] = content;
+            results[model.id] = content;
             successCount++;
           } catch (err) {
             const message = err instanceof Error ? err.message : 'Unknown error';
             res.write(
               `data: ${JSON.stringify({
                 type: 'error',
-                model: model.label,
+                model: model.id,
                 message,
               })}\n\n`,
             );
@@ -262,17 +272,20 @@ export class AIController {
           `data: ${JSON.stringify({ type: 'synthesis_start' })}\n\n`,
         );
 
-        const synthesisPrompt = `You received three AI responses to this prompt:
+        const synthesisPrompt = `You received multiple AI responses to this prompt:
 "${dto.prompt}"
 
-Claude said: ${results.claude || 'Error'}
-GPT-4o said: ${results.gpt || 'Error'}
-Gemini said: ${results.gemini || 'Error'}
+${consensusModels
+  .map(
+    (model) =>
+      `${model.name} said: ${results[model.id] || 'Error'}`,
+  )
+  .join('\n')}
 
 Synthesize these responses into a structured analysis:
-1. **Key Agreements**: Points all models agree on
+1. **Key Agreements**: Points the selected models agree on
 2. **Notable Differences**: Where models diverge and why
-3. **Strongest Combined Answer**: The most comprehensive response drawing on all three
+3. **Strongest Combined Answer**: The most comprehensive response across all selected models
 4. **Confidence Assessment**: Rate each model's response quality (High/Medium/Low)
 
 Be concise and direct.`;
@@ -309,6 +322,7 @@ Be concise and direct.`;
               'consensus',
               0,
               0,
+              consensusModels.reduce((total, model) => total + model.creditsPerMessage, 0),
             );
           } catch (err) {
             console.error('Consensus credit deduction error:', err);

@@ -114,45 +114,49 @@ function HeroInner() {
 
           <article className="magic-bento-card rounded-3xl border border-white/10 bg-black/55 p-7 md:col-span-2 bento-card relative overflow-hidden">
             <div className="absolute inset-0 opacity-70" style={{ background: 'radial-gradient(55% 55% at 50% 0%, rgba(94,144,255,0.15) 0%, transparent 72%)' }} />
-            <div className="relative min-h-[220px]">
-              <svg viewBox="0 0 600 220" className="h-[220px] w-full">
+            <div className="relative min-h-[224px]">
+              <svg viewBox="0 0 600 224" className="h-[224px] w-full">
                 <defs>
-                  <radialGradient id="coreGlow" cx="50%" cy="50%" r="70%">
-                    <stop offset="0%" stopColor="rgba(255,255,255,0.28)" />
+                  <radialGradient id="coreGlow" cx="50%" cy="50%" r="72%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
                     <stop offset="100%" stopColor="rgba(255,255,255,0)" />
                   </radialGradient>
+                  <linearGradient id="coreShell" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.09)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
+                  </linearGradient>
                 </defs>
-                <rect x="252" y="82" width="68" height="68" rx="14" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" />
-                <circle cx="286" cy="116" r="30" fill="url(#coreGlow)" />
+                <rect x="252" y="78" width="72" height="72" rx="18" fill="url(#coreShell)" stroke="rgba(255,255,255,0.2)" />
+                <rect x="256" y="82" width="64" height="64" rx="15" fill="rgba(18,26,48,0.28)" stroke="rgba(140,168,255,0.18)" />
+                <circle cx="288" cy="114" r="30" fill="url(#coreGlow)" />
 
-                <path className="route-line" d="M320 96 C 394 68, 450 49, 522 36" stroke="rgba(98, 152, 255, 0.7)" />
-                <path className="route-line" d="M320 102 C 396 84, 450 69, 522 60" stroke="rgba(128, 164, 255, 0.66)" style={{ animationDelay: '-0.18s' }} />
-                <path className="route-line" d="M320 111 C 404 98, 456 95, 522 98" stroke="rgba(167, 107, 255, 0.66)" style={{ animationDelay: '-0.4s' }} />
-                <path className="route-line" d="M320 122 C 404 118, 456 124, 522 136" stroke="rgba(121, 214, 255, 0.66)" style={{ animationDelay: '-0.6s' }} />
-                <path className="route-line" d="M320 136 C 405 146, 452 160, 522 172" stroke="rgba(255, 168, 84, 0.66)" style={{ animationDelay: '-0.8s' }} />
+                <path className="route-line" d="M324 96 C 396 72, 450 52, 520 38" stroke="rgba(98, 152, 255, 0.76)" style={{ strokeWidth: 2 }} />
+                <path className="route-line" d="M324 104 C 397 88, 450 76, 520 66" stroke="rgba(128, 164, 255, 0.72)" style={{ animationDelay: '-0.18s', strokeWidth: 2 }} />
+                <path className="route-line" d="M324 114 C 402 108, 454 104, 520 102" stroke="rgba(167, 107, 255, 0.72)" style={{ animationDelay: '-0.4s', strokeWidth: 2 }} />
+                <path className="route-line" d="M324 126 C 402 128, 454 132, 520 138" stroke="rgba(121, 214, 255, 0.72)" style={{ animationDelay: '-0.6s', strokeWidth: 2 }} />
+                <path className="route-line" d="M324 140 C 401 150, 452 162, 520 174" stroke="rgba(255, 168, 84, 0.72)" style={{ animationDelay: '-0.8s', strokeWidth: 2 }} />
 
-                <circle cx="320" cy="116" r="3.2" fill="rgba(255,255,255,0.9)" className="route-dot" />
-                <circle cx="320" cy="116" r="8" fill="rgba(255,255,255,0.08)" />
+                <circle cx="324" cy="114" r="3.8" fill="rgba(255,255,255,0.95)" className="route-dot" />
+                <circle cx="324" cy="114" r="8.5" fill="rgba(255,255,255,0.1)" />
 
-                <rect x="522" y="18" width="42" height="30" rx="9" fill="rgba(86,131,255,0.08)" stroke="rgba(86,131,255,0.5)" />
-                <rect x="522" y="50" width="42" height="30" rx="9" fill="rgba(110,150,255,0.08)" stroke="rgba(110,150,255,0.5)" />
-                <rect x="522" y="84" width="42" height="30" rx="9" fill="rgba(149,93,255,0.08)" stroke="rgba(149,93,255,0.5)" />
-                <rect x="522" y="120" width="42" height="30" rx="9" fill="rgba(82,212,255,0.08)" stroke="rgba(82,212,255,0.5)" />
-                <rect x="522" y="156" width="42" height="30" rx="9" fill="rgba(255,170,74,0.08)" stroke="rgba(255,170,74,0.5)" />
-                <circle cx="543" cy="33" r="3.2" fill="rgba(177, 201, 255, 0.95)" />
-                <circle cx="543" cy="65" r="3.2" fill="rgba(191, 210, 255, 0.95)" />
-                <circle cx="543" cy="99" r="3.2" fill="rgba(215, 183, 255, 0.95)" />
-                <circle cx="543" cy="135" r="3.2" fill="rgba(176, 240, 255, 0.95)" />
-                <circle cx="543" cy="171" r="3.2" fill="rgba(255, 214, 163, 0.95)" />
+                <rect x="520" y="23" width="46" height="30" rx="11" fill="rgba(86,131,255,0.1)" stroke="rgba(86,131,255,0.56)" />
+                <rect x="520" y="51" width="46" height="30" rx="11" fill="rgba(110,150,255,0.1)" stroke="rgba(110,150,255,0.56)" />
+                <rect x="520" y="87" width="46" height="30" rx="11" fill="rgba(149,93,255,0.1)" stroke="rgba(149,93,255,0.56)" />
+                <rect x="520" y="123" width="46" height="30" rx="11" fill="rgba(82,212,255,0.1)" stroke="rgba(82,212,255,0.56)" />
+                <rect x="520" y="159" width="46" height="30" rx="11" fill="rgba(255,170,74,0.1)" stroke="rgba(255,170,74,0.56)" />
+                <circle cx="543" cy="38" r="11" fill="rgba(177, 201, 255, 0.14)" />
+                <circle cx="543" cy="66" r="11" fill="rgba(191, 210, 255, 0.14)" />
+                <circle cx="543" cy="102" r="11" fill="rgba(215, 183, 255, 0.14)" />
+                <circle cx="543" cy="138" r="11" fill="rgba(176, 240, 255, 0.14)" />
+                <circle cx="543" cy="174" r="11" fill="rgba(255, 214, 163, 0.14)" />
+                <image href="/logos/gpt.png" x="530" y="25" width="26" height="26" preserveAspectRatio="xMidYMid meet" />
+                <image href="/logos/claude.png" x="530" y="53" width="26" height="26" preserveAspectRatio="xMidYMid meet" />
+                <image href="/logos/gemini.png" x="530" y="89" width="26" height="26" preserveAspectRatio="xMidYMid meet" />
+                <image href="/logos/qwen.png" x="527" y="123" width="32" height="30" preserveAspectRatio="xMidYMid slice" />
+                <image href="/logos/kimi.png" x="530" y="161" width="26" height="26" preserveAspectRatio="xMidYMid meet" />
 
-                <text x="475" y="37" fontSize="10" fill="rgba(162, 190, 255, 0.96)" letterSpacing="0.08em">GPT</text>
-                <text x="458" y="69" fontSize="10" fill="rgba(178, 203, 255, 0.96)" letterSpacing="0.08em">CLAUDE</text>
-                <text x="455" y="103" fontSize="10" fill="rgba(203, 162, 255, 0.96)" letterSpacing="0.08em">GEMINI</text>
-                <text x="472" y="139" fontSize="10" fill="rgba(159, 236, 255, 0.96)" letterSpacing="0.08em">QWEN</text>
-                <text x="477" y="175" fontSize="10" fill="rgba(255, 203, 138, 0.96)" letterSpacing="0.08em">KIMI</text>
-
-                <text x="338" y="76" fontSize="10" fill="rgba(255,255,255,0.62)" letterSpacing="0.18em">AUTO</text>
-                <text x="338" y="188" fontSize="10" fill="rgba(255,255,255,0.62)" letterSpacing="0.18em">MANUAL</text>
+                <text x="364" y="76" fontSize="10" fill="rgba(255,255,255,0.72)" letterSpacing="0.18em" fontWeight="600">AUTO</text>
+                <text x="364" y="190" fontSize="10" fill="rgba(255,255,255,0.68)" letterSpacing="0.18em" fontWeight="600">MANUAL</text>
               </svg>
             </div>
             <h3 className="mt-2 text-[clamp(30px,2.6vw,35px)] font-semibold tracking-tight text-white">Smart Model Selection</h3>
