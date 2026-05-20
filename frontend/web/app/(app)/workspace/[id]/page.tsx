@@ -251,7 +251,6 @@ export default function WorkspacePage() {
     setAllDone(false);
     setStatusText('');
     setLastUserMessage(userMessage);
-    setChatHistory([]);
 
     const modelsToUse = selectedModels.length > 0 ? selectedModels : allModels.slice(0, 3);
     abortControllersRef.current = [];
@@ -307,6 +306,7 @@ export default function WorkspacePage() {
       abortControllersRef.current.push(controller);
 
       const streamModel = async () => {
+        let streamedContent = '';
         try {
           const headers: Record<string, string> = {
             'Content-Type': 'application/json',
@@ -378,6 +378,7 @@ export default function WorkspacePage() {
               try {
                 const data = JSON.parse(trimmed.slice(6));
                 if (data.type === 'delta' && data.content) {
+                  streamedContent += data.content;
                   setModelResponses((prev) => {
                     const updated = [...prev];
                     if (!updated[index]) return prev;
@@ -425,26 +426,20 @@ export default function WorkspacePage() {
           completedCount++;
 
           // Save assistant message to backend after streaming completes
-          if (resolvedTileId) {
-            setModelResponses((prev) => {
-              const resp = prev[index];
-              if (resp && resp.content && resp.status === 'done') {
-                const saveHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-                if (token) saveHeaders['Authorization'] = `Bearer ${token}`;
-                fetch(`${API_BASE}/messages`, {
-                  method: 'POST',
-                  headers: saveHeaders,
-                  credentials: 'include',
-                  body: JSON.stringify({
-                    tileId: resolvedTileId,
-                    role: 'assistant',
-                    content: resp.content,
-                    model: model.id,
-                  }),
-                }).catch(() => {});
-              }
-              return prev;
-            });
+          if (resolvedTileId && streamedContent) {
+            const saveHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (token) saveHeaders['Authorization'] = `Bearer ${token}`;
+            fetch(`${API_BASE}/messages`, {
+              method: 'POST',
+              headers: saveHeaders,
+              credentials: 'include',
+              body: JSON.stringify({
+                tileId: resolvedTileId,
+                role: 'assistant',
+                content: streamedContent,
+                model: model.id,
+              }),
+            }).catch(() => {});
           }
 
           if (completedCount === modelsToUse.length) {
@@ -754,7 +749,7 @@ export default function WorkspacePage() {
         </div>
 
         <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-4 sm:px-6">
-          {chatHistory.length > 0 && (
+          {chatHistory.length > 0 && modelResponses.length === 0 && (
             <div className="mb-4 space-y-3 overflow-y-auto">
               {(() => {
                 // Group messages into turns: each user message followed by its assistant responses
