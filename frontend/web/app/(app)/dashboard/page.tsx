@@ -1,41 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from '@/lib/auth-client';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { NewWorkspaceModal } from '@/components/workspace/NewWorkspaceModal';
 
-const MOCK_WORKSPACES = [
-  {
-    id: '1',
-    name: 'Product Research Sprint',
-    tileCount: 5,
-    lastOpenedAt: '2 hours ago',
-    models: ['Claude', 'GPT-4o'],
-  },
-  {
-    id: '2',
-    name: 'Code Architecture Review',
-    tileCount: 3,
-    lastOpenedAt: '1 day ago',
-    models: ['Claude', 'Codex'],
-  },
-  {
-    id: '3',
-    name: 'Market Analysis',
-    tileCount: 8,
-    lastOpenedAt: '3 days ago',
-    models: ['Gemini', 'Sonar Pro', 'Claude'],
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 export default function DashboardPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [workspaces, setWorkspaces] = useState<Array<{ id: string; name: string; tile_count: number; last_opened_at: string | null; template_id: string | null }>>([]);
   const { data: session } = useSession();
+  const { getToken } = useAuth();
   const userName = session?.user?.name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    const fetchWorkspaces = async () => {
+      const token = await getToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      try {
+        const res = await fetch(`${API_BASE}/workspaces`, {
+          headers,
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setWorkspaces(data);
+          }
+        }
+      } catch {
+        // silently fail
+      }
+    };
+
+    fetchWorkspaces();
+  }, [getToken]);
 
   return (
     <div
@@ -177,7 +183,7 @@ export default function DashboardPage() {
             gap: 16,
           }}
         >
-          {MOCK_WORKSPACES.map((ws, i) => (
+          {workspaces.map((ws, i) => (
             <motion.div
               key={ws.id}
               initial={{ opacity: 0, y: 20 }}
@@ -185,7 +191,7 @@ export default function DashboardPage() {
               transition={{ delay: i * 0.1 }}
             >
               <Link
-                href={`/workspace/${ws.id}`}
+                href={`/workspace/${ws.name.toLowerCase().replace(/\s+/g, '-')}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div
@@ -267,20 +273,17 @@ export default function DashboardPage() {
                         gap: 6,
                       }}
                     >
-                      {ws.models.map((m) => (
-                        <span
-                          key={m}
-                          style={{
-                            fontSize: 10,
-                            padding: '2px 6px',
-                            background: 'var(--vel-bg-elevated)',
-                            borderRadius: 4,
-                            color: 'var(--vel-text-secondary)',
-                          }}
-                        >
-                          {m}
-                        </span>
-                      ))}
+                      <span
+                        style={{
+                          fontSize: 10,
+                          padding: '2px 6px',
+                          background: 'var(--vel-bg-elevated)',
+                          borderRadius: 4,
+                          color: 'var(--vel-text-secondary)',
+                        }}
+                      >
+                        {ws.tile_count} {ws.tile_count === 1 ? 'tile' : 'tiles'}
+                      </span>
                     </div>
                     <span
                       style={{
@@ -288,7 +291,7 @@ export default function DashboardPage() {
                         color: 'var(--vel-text-muted)',
                       }}
                     >
-                      {ws.lastOpenedAt}
+                      {ws.last_opened_at ? new Date(ws.last_opened_at).toLocaleDateString() : ''}
                     </span>
                   </div>
                 </div>
