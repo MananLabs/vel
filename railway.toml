@@ -1,8 +1,7 @@
 [build]
-builder = "nixpacks"
-nixpacksConfigPath = "nixpacks.toml"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "node backend/api/dist/main.js"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 5

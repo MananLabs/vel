@@ -1,10 +1,10 @@
 FROM node:20-alpine AS base
 RUN corepack enable && corepack prepare npm@latest --activate
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 COPY packages/shared/package.json packages/shared/
 COPY backend/api/package.json backend/api/
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 FROM base AS build
 COPY . .
