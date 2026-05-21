@@ -1,0 +1,10 @@
+[build]
+  command = "npm ci && cd frontend/web && npm run build"
+  publish = "frontend/web/.next"
+
+[build.environment]
+  NEXT_PUBLIC_API_URL = "https://velankani.onrender.com/api/v1"
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

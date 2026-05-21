@@ -12,3 +12,6 @@ build
 .turbo
 backend/ai-cli/.recordings
 backend/ai-cli/storage
+
+# Local Netlify folder
+.netlify

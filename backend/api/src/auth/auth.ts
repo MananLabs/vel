@@ -13,6 +13,7 @@ function buildTrustedOrigins(): string[] {
   origins.add('http://localhost:3000');
   origins.add('http://127.0.0.1:3000');
   origins.add('https://vel-ai-seven.vercel.app');
+  origins.add('https://vel-ai.netlify.app');
 
   // Frontend URL from env
   if (process.env.FRONTEND_URL) {
