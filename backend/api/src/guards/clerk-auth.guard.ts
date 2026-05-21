@@ -115,8 +115,18 @@ export class ClerkAuthGuard implements CanActivate {
     }
 
     try {
+      // Support Bearer token auth for cross-domain deployments
+      // If Authorization header has a Bearer token, inject it as the session cookie header
+      const authHeader = request.headers?.['authorization'] || '';
+      const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+      const headersForAuth = { ...request.headers };
+      if (bearerToken && !request.headers?.cookie?.includes('better-auth.session_token')) {
+        headersForAuth.cookie = `better-auth.session_token=${bearerToken}`;
+      }
+
       const session = await auth.api.getSession({
-        headers: fromNodeHeaders(request.headers),
+        headers: fromNodeHeaders(headersForAuth),
       });
 
       if (!session || !session.user) {
