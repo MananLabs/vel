@@ -44,8 +44,17 @@ async function bootstrap() {
         'https://app.better-auth.com',
       ].filter(Boolean) as string[];
 
+  console.log('✅ CORS allowedOrigins:', allowedOrigins);
+
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // In production, also allow the frontend URL pattern
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      callback(null, false);
+    },
     credentials: true,
     methods: process.env.CORS_METHODS?.split(',').map((m) => m.trim()) || [
       'GET',
