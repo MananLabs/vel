@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm ci && npm run build --workspace=@vel-ai/shared && npm run build --workspace=@vel-ai/api"
+
+[deploy]
+startCommand = "node backend/api/dist/main.js"
+healthcheckPath = "/api/v1/health"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
