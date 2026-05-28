@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Rate Limit Guard (Redis-backed)
-// ═══════════════════════════════════════════════════════════
-
 import {
   CanActivate,
   ExecutionContext,
@@ -12,13 +8,18 @@ import {
 import { RedisService } from '../redis/redis.service';
 import type { AuthenticatedRequest } from '../common/types';
 
-const LIMITS: Record<string, { perSecond: number; perMinute: number }> = {
-  free: { perSecond: 1, perMinute: 10 },
-  pro: { perSecond: 3, perMinute: 60 },
-  pro_byok: { perSecond: 5, perMinute: 120 },
-  teams: { perSecond: 5, perMinute: 120 },
-  enterprise: { perSecond: 10, perMinute: 300 },
-};
+interface RateLimits {
+  perSecond: number;
+  perMinute: number;
+}
+
+const LIMITS = new Map<string, RateLimits>([
+  ['free', { perSecond: 1, perMinute: 10 }],
+  ['pro', { perSecond: 3, perMinute: 60 }],
+  ['pro_byok', { perSecond: 5, perMinute: 120 }],
+  ['teams', { perSecond: 5, perMinute: 120 }],
+  ['enterprise', { perSecond: 10, perMinute: 300 }],
+]);
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
@@ -28,11 +29,10 @@ export class RateLimitGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
-    if (!user) return true; // Let auth guard handle unauthenticated
+    if (!user) return true;
 
-    const limits = LIMITS[user.plan] || LIMITS.free;
+    const limits = LIMITS.get(user.plan) ?? LIMITS.get('free')!;
 
-    // Per-second check
     const secCount = await this.redis.incrWithTTL(
       this.redis.rateLimitSecKey(user.id),
       1,
@@ -48,7 +48,6 @@ export class RateLimitGuard implements CanActivate {
       );
     }
 
-    // Per-minute check
     const minCount = await this.redis.incrWithTTL(
       this.redis.rateLimitMinKey(user.id),
       60,

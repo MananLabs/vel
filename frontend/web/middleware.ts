@@ -1,36 +1,31 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const publicRoutes = ['/', '/sign-in', '/sign-up', '/api/auth'];
+const publicPaths = [
+  '/',
+  '/sign-in',
+  '/sign-up',
+  '/api/auth',
+  '/_next',
+  '/logo.avif',
+  '/bg-dashboard.avif',
+];
 
-function isPublicRoute(pathname: string): boolean {
-  return publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const isPublic = publicPaths.some(
+    (path) => pathname === path || pathname.startsWith(path),
   );
-}
 
-export default function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  // Allow public routes and static assets
-  if (isPublicRoute(pathname)) {
+  if (isPublic) {
     return NextResponse.next();
   }
 
-  // Check for Better Auth session cookie
-  // In cross-domain deployments (frontend on Vercel, backend on Render),
-  // the cookie may not be visible server-side. Allow through and let
-  // client-side auth handle the redirect.
-  const session =
-    req.cookies.get('better-auth.session_token') ||
-    req.cookies.get('__Secure-better-auth.session_token');
+  const accessToken = request.cookies.get('access_token')?.value;
 
-  if (!session) {
-    // In production with cross-domain auth, skip server-side redirect
-    // Client-side useSession() will handle auth state
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_API_URL) {
-      return NextResponse.next();
-    }
-    const signInUrl = new URL('/sign-in', req.url);
+  if (!accessToken) {
+    const signInUrl = new URL('/sign-in', request.url);
     signInUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(signInUrl);
   }

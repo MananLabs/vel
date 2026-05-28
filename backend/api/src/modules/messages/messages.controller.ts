@@ -17,14 +17,14 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { MessagesService } from './messages.service';
 import { TilesService } from '../tiles/tiles.service';
 import { WorkspaceService } from '../workspace/workspace.service';
 import type { AuthenticatedRequest } from '../../common/types';
 
 @Controller('messages')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class MessagesController {
   constructor(
     private readonly messagesService: MessagesService,

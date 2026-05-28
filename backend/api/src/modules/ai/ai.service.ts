@@ -114,31 +114,24 @@ export class AIService {
     if (modelId.includes('/')) return modelId;
 
     const modelMap: Record<string, string> = {
-      // Anthropic
-      'claude-opus-4': 'anthropic/claude-3-haiku',
-      'claude-sonnet-4': 'anthropic/claude-3-haiku',
-      'claude-haiku-3-5': 'anthropic/claude-3-haiku',
-      // OpenAI
-      'gpt-4o': 'openai/gpt-oss-120b:free',
-      'gpt-4-1': 'openai/gpt-oss-120b:free',
-      'o3-mini': 'openai/gpt-oss-120b:free',
-      'codex': 'openai/gpt-oss-120b:free',
-      // Google
-      'gemini-2-flash': 'google/gemini-2.5-flash',
-      'gemini-1-5-pro': 'google/gemini-pro-1.5',
-      // Perplexity
+      'claude-opus-4': 'anthropic/claude-opus-4',
+      'claude-sonnet-4': 'anthropic/claude-sonnet-4',
+      'claude-haiku-3-5': 'anthropic/claude-3-5-haiku',
+      'gpt-4o': 'openai/gpt-4o',
+      'gpt-4-1': 'openai/gpt-4.1',
+      'o3-mini': 'openai/o3-mini',
+      'codex': 'openai/codex',
+      'gemini-2-flash': 'google/gemini-2.0-flash-001',
+      'gemini-1-5-pro': 'google/gemini-1.5-pro',
       'perplexity-sonar-pro': 'perplexity/sonar-pro',
-      // xAI
       'grok-3': 'x-ai/grok-3-beta',
-      // Meta
       'llama-3-3-70b': 'meta-llama/llama-3.3-70b-instruct',
-      // Free models
       'glm-4-5-air': 'z-ai/glm-4.5-air',
       'hermes-3-405b': 'nousresearch/hermes-3-405b-instruct',
-      'qwen3-coder': 'qwen/qwen3-coder-480b-a35b',
+      'qwen3-coder': 'qwen/qwen-3-coder-480b-a35b',
       'nemotron-super': 'nvidia/nemotron-3-super-512b',
       'mistral-small': 'mistralai/mistral-small-3.1-24b-instruct',
-    };
+    } as const;
 
     return modelMap[modelId] || modelId;
   }

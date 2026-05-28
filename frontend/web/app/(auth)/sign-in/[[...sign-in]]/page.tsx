@@ -2,124 +2,99 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { signIn } from '@/lib/auth-client';
 
 export default function SignInPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-
-    await signIn.email(
-      {
-        email,
-        password,
-      },
-      {
-        onSuccess: (ctx) => {
-          // Store session token for cross-domain auth
-          const token = (ctx.data as any)?.token || (ctx.data as any)?.session?.token;
-          if (token && typeof window !== 'undefined') {
-            localStorage.setItem('vel-session-token', token);
-          }
-          router.push('/dashboard');
-        },
-        onError: (ctx) => {
-          setError(ctx.error.message || 'Sign in failed');
-          setLoading(false);
-        },
-      },
-    );
-
-    setLoading(false);
+    setLoading(true);
+    try {
+      await signIn.email({ email, password });
+      router.replace('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative">
-      {/* Background glow */}
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 800,
-          height: 800,
-          background:
-            'radial-gradient(circle, rgba(109,95,255,0.15) 0%, transparent 60%)',
-          top: '50%',
-          left: '50%',
+          width: 800, height: 800,
+          background: 'radial-gradient(circle, rgba(109,95,255,0.15) 0%, transparent 60%)',
+          top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
         }}
       />
-
       <div
-        className="relative z-10 w-full max-w-[420px] mx-4 text-center"
+        className="relative z-10 w-full max-w-[420px] mx-4"
         style={{
-          padding: '48px 40px',
-          borderRadius: 24,
+          padding: '48px 40px', borderRadius: 24,
           background: 'rgba(17, 17, 17, 0.8)',
           border: '1px solid rgba(255, 255, 255, 0.06)',
           backdropFilter: 'blur(24px)',
           boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
         }}
       >
-        {/* Logo */}
         <div className="w-14 h-14 mx-auto mb-6 flex items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.avif" alt="VEL AI" width={56} height={56} className="rounded-lg" />
         </div>
-
-        <h2 className="text-2xl font-semibold text-white mb-2">Welcome Back</h2>
-        <p className="text-sm text-[#888] mb-8">
-          Sign in to your VEL AI workspace
-        </p>
+        <h2 className="text-2xl font-semibold text-white mb-2 text-center">Sign In</h2>
+        <p className="text-sm text-[#888] mb-8 text-center">Welcome back to VEL AI</p>
 
         {error && (
-          <div className="mb-5 px-4 py-3 rounded-lg text-sm text-red-400 bg-red-500/10 border border-red-500/30">
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            required
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white text-[15px] outline-none focus:border-violet-500/50 transition placeholder:text-[#555]"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white text-[15px] outline-none focus:border-violet-500/50 transition placeholder:text-[#555]"
-          />
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+              placeholder="••••••••"
+              required
+              minLength={8}
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 bg-[#6D5FFF] hover:bg-[#5B4FE6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-xl transition"
+            className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-colors disabled:opacity-50"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-6 text-sm text-[#666]">
+        <p className="text-center text-sm text-[#666] mt-6">
           Don&apos;t have an account?{' '}
-          <Link
-            href="/sign-up"
-            className="text-[#6D5FFF] hover:text-[#8B7AFF] font-medium no-underline transition"
-          >
-            Sign up
-          </Link>
-        </div>
+          <a href="/sign-up" className="text-violet-400 hover:text-violet-300">Sign up</a>
+        </p>
       </div>
     </div>
   );

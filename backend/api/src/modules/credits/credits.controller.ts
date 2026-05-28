@@ -6,12 +6,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { CreditsService } from './credits.service';
 import type { AuthenticatedRequest } from '../../common/types';
 
 @Controller('credits')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class CreditsController {
   constructor(private readonly creditsService: CreditsService) {}
 

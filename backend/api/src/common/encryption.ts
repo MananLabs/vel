@@ -40,8 +40,7 @@ export function encrypt(plaintext: string): string {
   const key = deriveKey();
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv(ALGORITHM, key, iv);
-  let encrypted = cipher.update(plaintext, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
+  const encrypted = cipher.update(plaintext, 'utf8', 'hex') + cipher.final('hex');
   const authTag = cipher.getAuthTag().toString('hex');
   return `${iv.toString('hex')}:${authTag}:${encrypted}`;
 }
@@ -52,13 +51,20 @@ export function decrypt(ciphertext: string): string {
   if (parts.length !== 3) {
     throw new Error('Invalid encrypted payload format');
   }
-  const [ivHex, tagHex, encrypted] = parts;
+
+  const ivHex = parts[0];
+  const tagHex = parts[1];
+  const encryptedData = parts[2];
+
+  if (!ivHex || !tagHex || !encryptedData) {
+    throw new Error('Invalid encrypted payload format');
+  }
+
   const iv = Buffer.from(ivHex, 'hex');
   const authTag = Buffer.from(tagHex, 'hex');
   const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
+  const decrypted = decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8');
   return decrypted;
 }
 

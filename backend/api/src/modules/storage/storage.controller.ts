@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Query, Body, UseGuards } from '@nestjs/common';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { R2Service } from './r2.service';
 
 @Controller('storage')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class StorageController {
   constructor(private readonly r2Service: R2Service) {}
 

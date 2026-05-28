@@ -51,7 +51,7 @@ export class UsersService {
     userId: string,
     data: { email?: string; name?: string; avatarUrl?: string },
   ) {
-    const setData: Record<string, unknown> = {};
+    const setData: Partial<typeof users.$inferSelect> = {};
     if (data.email) setData.email = data.email;
     if (data.name) setData.name = data.name;
     if (data.avatarUrl) setData.avatarUrl = data.avatarUrl;
@@ -78,7 +78,7 @@ export class UsersService {
     userId: string,
     keys: { openaiKey?: string | null; anthropicKey?: string | null },
   ): Promise<void> {
-    const setData: Record<string, unknown> = {};
+    const setData: Partial<typeof users.$inferSelect> = {};
     if (keys.openaiKey !== undefined) {
       setData.byokOpenaiKey = keys.openaiKey ? encrypt(keys.openaiKey) : null;
     }

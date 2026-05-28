@@ -1,42 +1,52 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — NestJS Bootstrap
-// ═══════════════════════════════════════════════════════════
-
-// IMPORTANT: env must be loaded before any other imports
-/* eslint-disable @typescript-eslint/no-var-requires */
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
 require('dotenv').config({ path: '.env' });
 
-process.on('unhandledRejection', (reason) => {
-  console.warn('⚠️  Unhandled rejection (non-fatal):', reason instanceof Error ? reason.message : reason);
-});
-
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 import type { Request, Response, NextFunction } from 'express';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const logger = new NestLogger('Bootstrap');
+
+  process.on('unhandledRejection', (reason) => {
+    logger.warn('Unhandled rejection (non-fatal):', reason instanceof Error ? reason.message : reason);
+  });
+
+  const { validateEnvironment } = await import('./common/env');
+  const envResult = validateEnvironment();
+  if (envResult.warnings.length > 0) {
+    logger.warn(`Environment validation found ${envResult.warnings.length} issue(s)`);
+  }
+
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
+    bufferLogs: true,
   });
+
+  app.useLogger(app.get(Logger));
 
   if (process.env.SENTRY_DSN) {
     const Sentry = await import('@sentry/node');
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
-      tracesSampleRate: 0.1,
+      tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
       environment: process.env.NODE_ENV || 'development',
     });
+    logger.log('Sentry initialized');
   }
 
-  // ─── RAW CORS MIDDLEWARE (runs before everything) ───────────
-  // This ensures ALL routes get CORS headers, including Better Auth's
-  // toNodeHandler which bypasses NestJS's built-in CORS.
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3002')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.use((req: Request, res: Response, next: NextFunction) => {
     const origin = req.headers.origin;
-    if (origin) {
+    if (origin && (allowedOrigins.includes('*') || allowedOrigins.includes(origin || ''))) {
       res.setHeader('Access-Control-Allow-Origin', origin);
     }
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -58,6 +68,11 @@ async function bootstrap() {
     }),
   );
 
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+  }));
+
   app.setGlobalPrefix('api/v1');
 
   app.use('/api/v1/health', (_req: Request, res: Response) => {
@@ -66,14 +81,18 @@ async function bootstrap() {
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
     });
   });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  console.log(`\n🚀 VEL AI API running on port ${port}`);
-  console.log(`✅ CORS: reflecting all origins`);
-  console.log(`✅ Frontend: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n`);
+  logger.log(`VEL AI API running on port ${port}`);
+  logger.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+  logger.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});

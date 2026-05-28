@@ -3,12 +3,12 @@
 // ═══════════════════════════════════════════════════════════
 
 import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { ResearchService } from './research.service';
 import type { AuthenticatedRequest } from '../../common/types';
 
 @Controller('research')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ResearchController {
   constructor(private readonly researchService: ResearchService) {}
 

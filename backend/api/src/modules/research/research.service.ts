@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Research Service (Tavily Web Search)
-// ═══════════════════════════════════════════════════════════
-
 import { Injectable, Logger } from '@nestjs/common';
 import { AIService } from '../ai/ai.service';
 
@@ -40,9 +36,14 @@ export class ResearchService {
       sources.push(...perplexityResults.sources);
       webResults = perplexityResults.content;
     } else {
-      const mockResults = this.getMockResearch(query);
-      sources.push(...mockResults.sources);
-      webResults = mockResults.content;
+      this.logger.warn('No API keys configured for research. Set TAVILY_API_KEY or PERPLEXITY_API_KEY.');
+      return {
+        query,
+        findings: 'Research requires either TAVILY_API_KEY or PERPLEXITY_API_KEY to be configured.',
+        sources: [],
+        tokensUsed: 0,
+        latencyMs: Date.now() - startTime,
+      };
     }
 
     const synthesisPrompt = `You are a research analyst. Based on the following web search results, provide a comprehensive research summary.
@@ -53,9 +54,9 @@ Search Results:
 ${webResults}
 
 Provide a structured analysis with:
-1. **Key Findings** (3-5 bullet points)
-2. **Detailed Analysis** (2-3 paragraphs)
-3. **Data Points** (any specific numbers, dates, or facts mentioned)
+1. Key Findings (3-5 bullet points)
+2. Detailed Analysis (2-3 paragraphs)
+3. Data Points (any specific numbers, dates, or facts mentioned)
 
 Be factual, cite sources inline, and distinguish between verified information and claims needing further verification.`;
 
@@ -128,7 +129,7 @@ Be factual, cite sources inline, and distinguish between verified information an
       };
     } catch (err) {
       this.logger.error(`Tavily search failed: ${err}`);
-      return this.getMockResearch(query);
+      return { content: '', sources: [] };
     }
   }
 
@@ -177,36 +178,7 @@ Be factual, cite sources inline, and distinguish between verified information an
       return { content, sources };
     } catch (err) {
       this.logger.error(`Perplexity search failed: ${err}`);
-      return this.getMockResearch(query);
+      return { content: '', sources: [] };
     }
-  }
-
-  private getMockResearch(query: string): { content: string; sources: ResearchResult['sources'] } {
-    return {
-      content: `Based on web research for "${query}", here are key findings:
-
-**Emerging Trends:**
-- Industry adoption is accelerating with 60% growth in the past 12 months
-- Major players are investing heavily in infrastructure and tooling
-- Regulatory frameworks are being developed to address emerging challenges
-
-**Market Analysis:**
-- Global market size estimated at $45B with projections to reach $120B by 2028
-- Enterprise adoption leading consumer by 3:1 ratio
-- Asia-Pacific region showing fastest growth at 85% YoY
-
-**Key Considerations:**
-- Security and privacy concerns remain primary adoption barriers
-- Interoperability standards are still evolving
-- Talent shortage continues to impact growth rates
-
-Note: This is a simulated research result. Add TAVILY_API_KEY or PERPLEXITY_API_KEY for real web search.`,
-      sources: [
-        { url: 'https://arxiv.org', title: 'arXiv Papers', snippet: 'Academic research papers' },
-        { url: 'https://scholar.google.com', title: 'Google Scholar', snippet: 'Peer-reviewed studies' },
-        { url: 'https://hackernews.com', title: 'Hacker News', snippet: 'Industry discussions' },
-        { url: 'https://techcrunch.com', title: 'TechCrunch', snippet: 'Tech industry news' },
-      ],
-    };
   }
 }

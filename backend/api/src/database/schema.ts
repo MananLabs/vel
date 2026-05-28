@@ -58,7 +58,7 @@ export const users = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    clerkId: varchar('clerk_id', { length: 255 }).unique(),
+    passwordHash: text('password_hash'),
     email: varchar('email', { length: 255 }).notNull(),
     name: varchar('name', { length: 255 }),
     avatarUrl: text('avatar_url'),
@@ -76,7 +76,6 @@ export const users = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (t) => ({
-    clerkIdx: index('users_clerk_id_idx').on(t.clerkId),
     emailIdx: index('users_email_idx').on(t.email),
   }),
 );

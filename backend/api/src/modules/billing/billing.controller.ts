@@ -12,7 +12,7 @@ import {
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { BillingService } from './billing.service';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../../common/types';
 import { STRIPE_CLIENT } from './billing.constants';
 
@@ -74,7 +74,7 @@ export class BillingController {
   }
 
   @Post('checkout')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async createCheckout(
     @Req() req: AuthenticatedRequest,
     @Body() body: { priceId: string },
@@ -87,7 +87,7 @@ export class BillingController {
   }
 
   @Post('top-up')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async createTopUp(
     @Req() req: AuthenticatedRequest,
     @Body() body: { priceId: string },

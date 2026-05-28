@@ -72,7 +72,7 @@ export class TilesService {
       creditsUsed?: number;
     },
   ) {
-    const setData: Record<string, unknown> = {};
+    const setData: Partial<typeof tiles.$inferSelect> = {};
     if (data.label !== undefined) setData.label = data.label;
     if (data.model !== undefined) setData.model = data.model;
     if (data.positionX !== undefined) setData.positionX = data.positionX;

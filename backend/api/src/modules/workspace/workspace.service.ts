@@ -63,11 +63,11 @@ export class WorkspaceService {
       tileCount?: number;
     },
   ) {
-    const setData: Record<string, unknown> = {};
+    const setData: Partial<typeof workspaces.$inferSelect> = {};
     if (data.name !== undefined) setData.name = data.name;
     if (data.description !== undefined) setData.description = data.description;
-    if (data.canvasState !== undefined) setData.canvasState = JSON.stringify(data.canvasState);
-    if (data.contextGraph !== undefined) setData.contextGraph = JSON.stringify(data.contextGraph);
+    if (data.canvasState !== undefined) setData.canvasState = data.canvasState as typeof workspaces.$inferSelect.canvasState;
+    if (data.contextGraph !== undefined) setData.contextGraph = data.contextGraph as typeof workspaces.$inferSelect.contextGraph;
     if (data.tileCount !== undefined) setData.tileCount = data.tileCount;
 
     if (Object.keys(setData).length === 0) {

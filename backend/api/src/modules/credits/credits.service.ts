@@ -47,7 +47,7 @@ export class CreditsService {
       .from(users)
       .where(eq(users.id, userId));
 
-    if (!user || user.creditsRemaining < estimatedCredits) {
+    if (!user?.creditsRemaining || user.creditsRemaining < estimatedCredits) {
       await this.redis.del(lockKey);
       throw new ForbiddenException('Insufficient credits');
     }

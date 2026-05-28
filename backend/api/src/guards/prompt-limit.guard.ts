@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Prompt Limit Guard
-// ═══════════════════════════════════════════════════════════
-
 import {
   CanActivate,
   ExecutionContext,
@@ -9,13 +5,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-const MAX_PROMPT_CHARS: Record<string, number> = {
-  free: 4000,
-  pro: 16000,
-  pro_byok: 32000,
-  teams: 32000,
-  enterprise: 64000,
-};
+const MAX_PROMPT_CHARS = new Map<string, number>([
+  ['free', 4000],
+  ['pro', 16000],
+  ['pro_byok', 32000],
+  ['teams', 32000],
+  ['enterprise', 64000],
+]);
 
 @Injectable()
 export class PromptLimitGuard implements CanActivate {
@@ -28,10 +24,11 @@ export class PromptLimitGuard implements CanActivate {
       return true;
     }
 
-    const maxChars = MAX_PROMPT_CHARS[user?.plan] || MAX_PROMPT_CHARS.free;
+    const plan = user?.plan as string | undefined;
+    const maxChars = MAX_PROMPT_CHARS.get(plan ?? 'free') ?? 4000;
     const totalChars = body.messages.reduce(
       (sum: number, msg: { content?: string }) =>
-        sum + (msg.content?.length || 0),
+        sum + (msg.content?.length ?? 0),
       0,
     );
 

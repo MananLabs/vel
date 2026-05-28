@@ -9,12 +9,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { WorkspaceService } from './workspace.service';
 import type { AuthenticatedRequest } from '../../common/types';
 
 @Controller('workspaces')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 

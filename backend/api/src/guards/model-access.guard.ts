@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Model Access Guard
-// ═══════════════════════════════════════════════════════════
-
 import {
   CanActivate,
   ExecutionContext,
@@ -11,15 +7,9 @@ import {
 import { getModel } from '@vel-ai/shared/types/models';
 import type { AuthenticatedRequest } from '../common/types';
 
-// Models available per plan
 const PLAN_MODEL_ACCESS: Record<string, string[]> = {
-  free: [
-    'claude-haiku-3-5',
-    'gpt-4o',
-    'gemini-2-flash',
-    'llama-3-3-70b',
-  ],
-  pro: ['*'], // All models
+  free: ['claude-haiku-3-5', 'gpt-4o', 'gemini-2-flash', 'llama-3-3-70b'],
+  pro: ['*'],
   pro_byok: ['*'],
   teams: ['*'],
   enterprise: ['*'],
@@ -48,7 +38,11 @@ export class ModelAccessGuard implements CanActivate {
       );
     }
 
-    const allowedModels = PLAN_MODEL_ACCESS[user.plan] || PLAN_MODEL_ACCESS.free;
+    const allowedModels = PLAN_MODEL_ACCESS[user?.plan ?? 'free'];
+    if (!allowedModels) {
+      throw new ForbiddenException('No model access configured for your plan');
+    }
+
     if (allowedModels[0] !== '*' && !allowedModels.includes(model.id)) {
       throw new ForbiddenException(
         `${model.name} requires a Pro plan or higher. Upgrade to access all models.`,

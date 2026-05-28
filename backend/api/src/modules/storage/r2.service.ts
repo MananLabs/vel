@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Cloudflare R2 Storage Service
-// ═══════════════════════════════════════════════════════════
-
 import { Injectable, Logger } from '@nestjs/common';
 import {
   S3Client,
@@ -17,8 +13,8 @@ type StorageFolder = 'exports' | 'cad' | 'recordings' | 'thumbnails';
 @Injectable()
 export class R2Service {
   private readonly logger = new Logger(R2Service.name);
-  private client: S3Client | undefined;
-  private bucket: string;
+  private readonly client: S3Client | undefined;
+  private readonly bucket: string;
 
   constructor() {
     this.bucket = process.env.R2_BUCKET_NAME || 'vel-ai-storage';
@@ -42,16 +38,12 @@ export class R2Service {
     });
   }
 
-  private get isAvailable(): boolean {
-    return this.client !== undefined;
-  }
-
   async upload(
     content: Buffer | string,
     contentType: string,
     folder: StorageFolder,
   ): Promise<{ key: string; url: string }> {
-    if (!this.isAvailable) {
+    if (!this.client) {
       throw new Error('R2 storage not configured');
     }
     const key = `${folder}/${uuidv4()}`;
@@ -76,7 +68,7 @@ export class R2Service {
     contentType: string,
     folder: StorageFolder = 'exports',
   ): Promise<{ key: string; uploadUrl: string }> {
-    if (!this.isAvailable) {
+    if (!this.client) {
       throw new Error('R2 storage not configured');
     }
     const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -100,7 +92,7 @@ export class R2Service {
   }
 
   async getDownloadUrl(key: string): Promise<string> {
-    if (!this.isAvailable) {
+    if (!this.client) {
       throw new Error('R2 storage not configured');
     }
     return getSignedUrl(
@@ -111,7 +103,7 @@ export class R2Service {
   }
 
   async delete(key: string): Promise<void> {
-    if (!this.isAvailable) return;
+    if (!this.client) return;
     await this.client.send(
       new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
     );

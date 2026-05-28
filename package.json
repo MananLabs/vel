@@ -11,8 +11,6 @@
     "dev": "turbo run dev",
     "dev:frontend": "turbo run dev --filter=@vel-ai/web",
     "dev:backend": "turbo run dev --filter=@vel-ai/api",
-    "dev:alt": "turbo run dev:alt",
-    "dev:alt:nowatch": "turbo run dev:alt:nowatch",
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
@@ -24,22 +22,11 @@
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
-    "@types/pg": "^8.20.0",
     "turbo": "^2.1.0",
     "typescript": "^5.5.0"
   },
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "npm@10.0.0",
-  "dependencies": {
-    "@better-auth/infra": "^0.2.8",
-    "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.106.0",
-    "better-auth": "^1.6.11",
-    "dotenv": "^16.4.0",
-    "drizzle-orm": "^0.31.4",
-    "pg": "^8.21.0",
-    "postgres": "^3.4.9"
-  }
+  "packageManager": "npm@10.0.0"
 }

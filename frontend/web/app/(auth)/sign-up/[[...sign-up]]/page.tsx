@@ -2,137 +2,111 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { signUp } from '@/lib/auth-client';
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-
-    await signUp.email(
-      {
-        email,
-        password,
-        name,
-      },
-      {
-        onSuccess: (ctx) => {
-          // Store session token for cross-domain auth
-          const token = (ctx.data as any)?.token || (ctx.data as any)?.session?.token;
-          if (token && typeof window !== 'undefined') {
-            localStorage.setItem('vel-session-token', token);
-          }
-          router.push('/dashboard');
-        },
-        onError: (ctx) => {
-          setError(ctx.error.message || 'Sign up failed');
-          setLoading(false);
-        },
-      },
-    );
-
-    setLoading(false);
+    setLoading(true);
+    try {
+      await signUp.email({ email, password, name });
+      router.replace('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative">
-      {/* Background glow */}
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 800,
-          height: 800,
-          background:
-            'radial-gradient(circle, rgba(109,95,255,0.15) 0%, transparent 60%)',
-          top: '50%',
-          left: '50%',
+          width: 800, height: 800,
+          background: 'radial-gradient(circle, rgba(109,95,255,0.15) 0%, transparent 60%)',
+          top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
         }}
       />
-
       <div
-        className="relative z-10 w-full max-w-[420px] mx-4 text-center"
+        className="relative z-10 w-full max-w-[420px] mx-4"
         style={{
-          padding: '48px 40px',
-          borderRadius: 24,
+          padding: '48px 40px', borderRadius: 24,
           background: 'rgba(17, 17, 17, 0.8)',
           border: '1px solid rgba(255, 255, 255, 0.06)',
           backdropFilter: 'blur(24px)',
           boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
         }}
       >
-        {/* Logo */}
         <div className="w-14 h-14 mx-auto mb-6 flex items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.avif" alt="VEL AI" width={56} height={56} className="rounded-lg" />
         </div>
-
-        <h2 className="text-2xl font-semibold text-white mb-2">
-          Create Account
-        </h2>
-        <p className="text-sm text-[#888] mb-8">
-          Start building with multiple AI models
-        </p>
+        <h2 className="text-2xl font-semibold text-white mb-2 text-center">Create Account</h2>
+        <p className="text-sm text-[#888] mb-8 text-center">Join VEL AI</p>
 
         {error && (
-          <div className="mb-5 px-4 py-3 rounded-lg text-sm text-red-400 bg-red-500/10 border border-red-500/30">
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full Name"
-            required
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white text-[15px] outline-none focus:border-violet-500/50 transition placeholder:text-[#555]"
-          />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            required
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white text-[15px] outline-none focus:border-violet-500/50 transition placeholder:text-[#555]"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password (8+ characters)"
-            required
-            minLength={8}
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white text-[15px] outline-none focus:border-violet-500/50 transition placeholder:text-[#555]"
-          />
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+              placeholder="Your name"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
+              placeholder="At least 8 characters"
+              required
+              minLength={8}
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 bg-[#6D5FFF] hover:bg-[#5B4FE6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-xl transition"
+            className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-colors disabled:opacity-50"
           >
-            {loading ? 'Creating account...' : 'Continue'}
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
-        <div className="mt-6 text-sm text-[#666]">
+        <p className="text-center text-sm text-[#666] mt-6">
           Already have an account?{' '}
-          <Link
-            href="/sign-in"
-            className="text-[#6D5FFF] hover:text-[#8B7AFF] font-medium no-underline transition"
-          >
-            Sign in
-          </Link>
-        </div>
+          <a href="/sign-in" className="text-violet-400 hover:text-violet-300">Sign in</a>
+        </p>
       </div>
     </div>
   );

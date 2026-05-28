@@ -14,7 +14,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ClerkAuthGuard } from '../../guards/clerk-auth.guard';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { RateLimitGuard } from '../../guards/rate-limit.guard';
 import { PromptLimitGuard } from '../../guards/prompt-limit.guard';
 import { ModelAccessGuard } from '../../guards/model-access.guard';
@@ -31,7 +31,7 @@ import { decrypt, isEncrypted } from '../../common/encryption';
 import { CONSENSUS_CREDITS, CONSENSUS_MODEL_IDS, AI_MODELS } from '@vel-ai/shared/types/models';
 
 @Controller('ai')
-@UseGuards(ClerkAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class AIController {
   private readonly logger = new Logger(AIController.name);
 
@@ -324,7 +324,7 @@ Be concise and direct.`;
               0,
             );
           } catch (err) {
-            console.error('Consensus credit deduction error:', err);
+            this.logger.error('Consensus credit deduction error:', err);
           }
         });
       }
