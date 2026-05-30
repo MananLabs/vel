@@ -64,7 +64,10 @@ export const signIn = {
       credentials: 'include',
       body: JSON.stringify({ email, password }),
     });
-    if (!res.ok) throw new Error('Login failed');
+    if (!res.ok) {
+      const body = await res.json().catch(() => null) as { message?: string } | null;
+      throw new Error(body?.message || 'Login failed');
+    }
     const data = (await res.json()) as { user: SessionUser };
     currentSession = { user: data.user };
     notifyListeners();
@@ -80,11 +83,11 @@ export const signUp = {
       credentials: 'include',
       body: JSON.stringify({ email, password, name }),
     });
-    if (!res.ok) throw new Error('Registration failed');
-    const data = (await res.json()) as { user: SessionUser };
-    currentSession = { user: data.user };
-    notifyListeners();
-    return data;
+    if (!res.ok) {
+      const body = await res.json().catch(() => null) as { message?: string } | null;
+      throw new Error(body?.message || 'Registration failed');
+    }
+    return (await res.json()) as { success: boolean; message: string };
   },
 };
 

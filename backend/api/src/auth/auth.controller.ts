@@ -43,6 +43,14 @@ export class RefreshDto {
   refreshToken!: string;
 }
 
+const COMMON_PASSWORDS = new Set([
+  'password', 'password1', '12345678', '123456789', '1234567890',
+  'qwerty123', 'admin123', 'letmein1', 'welcome1', 'monkey123',
+  'dragon123', 'master123', 'qwerty12', 'login123', 'abc12345',
+  'password123', 'admin1234', 'iloveyou1', 'sunshine1', 'princess1',
+  'football1', 'charlie1', 'shadow123', 'michael1', 'qwerty1234',
+]);
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env['NODE_ENV'] === 'production',
@@ -67,6 +75,10 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
+    if (COMMON_PASSWORDS.has(dto.password.toLowerCase())) {
+      throw new BadRequestException('This password is too common. Please choose a stronger password.');
+    }
+
     const existingUser = await this.usersRepository.getUserByEmail(dto.email);
     if (existingUser) {
       throw new BadRequestException('Email already registered');
@@ -77,6 +89,9 @@ export class AuthController {
     const verificationToken = randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS).toISOString();
 
+    this.logger.log(`[SIGNUP] User email: ${dto.email}`);
+    this.logger.log(`[SIGNUP] Verification token generated (length: ${verificationToken.length})`);
+
     await this.usersRepository.createUser({
       id: userId,
       email: dto.email,
@@ -84,7 +99,9 @@ export class AuthController {
       plan: 'free',
       credits: 100,
       passwordHash,
-      emailVerified: false,
+      // TEMPORARILY DISABLED FOR DEVELOPMENT
+      // RE-ENABLE BEFORE PRODUCTION LAUNCH
+      emailVerified: true,
       emailVerificationToken: verificationToken,
       emailVerificationExpiresAt: expiresAt,
       failedLoginAttempts: 0,
@@ -93,9 +110,12 @@ export class AuthController {
       createdAt: new Date().toISOString(),
     });
 
-    await this.emailService.sendVerificationEmail(dto.email, verificationToken);
+    // TEMPORARILY DISABLED FOR DEVELOPMENT
+    // RE-ENABLE BEFORE PRODUCTION LAUNCH
+    // this.logger.log(`[SIGNUP] Sending verification email to ${dto.email}`);
+    // await this.emailService.sendVerificationEmail(dto.email, verificationToken);
 
-    return { success: true, message: 'Verification email sent. Please check your inbox.' };
+    return { success: true, message: 'Account created successfully.' };
   }
 
   @Get('verify-email')
@@ -145,10 +165,11 @@ export class AuthController {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Check email verification
-    if (!user.emailVerified) {
-      throw new ForbiddenException('Please verify your email address before signing in.');
-    }
+    // TEMPORARILY DISABLED FOR DEVELOPMENT
+    // RE-ENABLE BEFORE PRODUCTION LAUNCH
+    // if (!user.emailVerified) {
+    //   throw new ForbiddenException('Please verify your email address before signing in.');
+    // }
 
     // Reset failed attempts and update last login
     await this.usersRepository.updateUser(user.id, {

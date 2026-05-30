@@ -24,6 +24,12 @@ export class UsersService {
       name: data.name || '',
       plan: 'free',
       credits: 100,
+      emailVerified: false,
+      emailVerificationToken: null,
+      emailVerificationExpiresAt: null,
+      failedLoginAttempts: 0,
+      accountLockedUntil: null,
+      lastLoginAt: null,
       createdAt: new Date().toISOString(),
     });
   }

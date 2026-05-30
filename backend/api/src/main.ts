@@ -90,6 +90,8 @@ async function bootstrap() {
   logger.log(`VEL AI API running on port ${port}`);
   logger.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
   logger.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  logger.warn('⚠ EMAIL VERIFICATION TEMPORARILY DISABLED');
+  logger.warn('⚠ ENABLE BEFORE PRODUCTION RELEASE');
 }
 
 bootstrap().catch((err) => {

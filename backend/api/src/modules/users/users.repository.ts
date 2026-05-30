@@ -5,10 +5,10 @@ import {
   UpdateCommand,
   DeleteCommand,
   ScanCommand,
-  DescribeTableCommand,
 } from '@aws-sdk/lib-dynamodb';
 import {
   ConditionalCheckFailedException,
+  DescribeTableCommand,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDbService } from '../../database/dynamodb.service';
 
