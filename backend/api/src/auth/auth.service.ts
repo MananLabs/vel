@@ -1,8 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { db } from '../database/db';
-import { users } from '../database/schema';
-import { eq } from 'drizzle-orm';
+import { UsersRepository } from '../modules/users/users.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 
@@ -30,10 +28,13 @@ interface SessionData {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   private get jwtSecret(): string {
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env['JWT_SECRET'];
     if (!secret || secret.length < 32) {
       throw new Error('JWT_SECRET must be at least 32 characters');
     }
@@ -147,10 +148,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const [user] = await db
-      .select({ id: users.id, email: users.email, plan: users.plan })
-      .from(users)
-      .where(eq(users.id, userId));
+    const user = await this.usersRepository.getUserById(userId);
 
     if (!user) {
       await this.redis.del(`vel:refresh:${refreshHash}`);

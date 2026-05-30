@@ -15,15 +15,40 @@ interface TableNames {
 @Injectable()
 export class DynamoDbService implements OnModuleInit {
   private readonly logger = new Logger(DynamoDbService.name);
-  private readonly client: DynamoDBDocumentClient;
+  private readonly client: DynamoDBDocumentClient | null;
   private readonly tables: TableNames;
+  private readonly configured: boolean;
 
   constructor() {
-    const region = this.requireEnv('AWS_REGION');
-    this.requireEnv('AWS_ACCESS_KEY_ID');
-    this.requireEnv('AWS_SECRET_ACCESS_KEY');
+    const region = process.env['AWS_REGION'];
 
-    const baseClient = new DynamoDBClient({ region });
+    if (!region) {
+      this.logger.warn('DynamoDB not configured — AWS_REGION missing. DynamoDB operations disabled.');
+      this.client = null;
+      this.configured = false;
+      this.tables = {
+        users: '',
+        workspaces: '',
+        conversations: '',
+        messages: '',
+        tiles: '',
+        creditTransactions: '',
+        usageEvents: '',
+      };
+      return;
+    }
+
+    // If explicit keys are provided, use them; otherwise rely on default credential chain
+    // (shared credentials file, EC2 instance role, ECS task role, etc.)
+    const accessKey = process.env['AWS_ACCESS_KEY_ID'];
+    const secretKey = process.env['AWS_SECRET_ACCESS_KEY'];
+
+    const clientConfig: ConstructorParameters<typeof DynamoDBClient>[0] = { region };
+    if (accessKey && secretKey && !accessKey.startsWith('your-')) {
+      clientConfig.credentials = { accessKeyId: accessKey, secretAccessKey: secretKey };
+    }
+
+    const baseClient = new DynamoDBClient(clientConfig);
 
     this.client = DynamoDBDocumentClient.from(baseClient, {
       marshallOptions: { removeUndefinedValues: true, convertClassInstanceToMap: true },
@@ -31,27 +56,37 @@ export class DynamoDbService implements OnModuleInit {
     });
 
     this.tables = {
-      users: this.requireEnv('DYNAMODB_USERS_TABLE'),
-      workspaces: this.requireEnv('DYNAMODB_WORKSPACES_TABLE'),
-      conversations: this.requireEnv('DYNAMODB_CONVERSATIONS_TABLE'),
-      messages: this.requireEnv('DYNAMODB_MESSAGES_TABLE'),
-      tiles: this.requireEnv('DYNAMODB_TILES_TABLE'),
-      creditTransactions: this.requireEnv('DYNAMODB_CREDIT_TRANSACTIONS_TABLE'),
-      usageEvents: this.requireEnv('DYNAMODB_USAGE_EVENTS_TABLE'),
+      users: process.env['DYNAMODB_USERS_TABLE'] || 'vel-ai-users',
+      workspaces: process.env['DYNAMODB_WORKSPACES_TABLE'] || 'vel-ai-workspaces',
+      conversations: process.env['DYNAMODB_CONVERSATIONS_TABLE'] || 'vel-ai-conversations',
+      messages: process.env['DYNAMODB_MESSAGES_TABLE'] || 'vel-ai-messages',
+      tiles: process.env['DYNAMODB_TILES_TABLE'] || 'vel-ai-tiles',
+      creditTransactions: process.env['DYNAMODB_CREDIT_TRANSACTIONS_TABLE'] || 'vel-ai-credit-transactions',
+      usageEvents: process.env['DYNAMODB_USAGE_EVENTS_TABLE'] || 'vel-ai-usage-events',
     };
 
+    this.configured = true;
     this.logger.log(`Initialized DynamoDB client in region ${region}`);
   }
 
   async onModuleInit(): Promise<void> {
+    if (!this.configured) return;
     const healthy = await this.healthCheck();
     if (!healthy) {
-      throw new Error('DynamoDB health check failed during startup');
+      this.logger.warn('DynamoDB health check failed — operations may fail at runtime');
+    } else {
+      this.logger.log('DynamoDB connection verified');
     }
-    this.logger.log('DynamoDB connection verified');
+  }
+
+  isConfigured(): boolean {
+    return this.configured;
   }
 
   getClient(): DynamoDBDocumentClient {
+    if (!this.client) {
+      throw new Error('DynamoDB is not configured. Set AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.');
+    }
     return this.client;
   }
 
@@ -60,6 +95,7 @@ export class DynamoDbService implements OnModuleInit {
   }
 
   async healthCheck(): Promise<boolean> {
+    if (!this.client) return false;
     try {
       await this.client.send(new ListTablesCommand({ Limit: 1 }));
       return true;
@@ -68,13 +104,5 @@ export class DynamoDbService implements OnModuleInit {
       this.logger.error(`DynamoDB health check failed: ${message}`);
       return false;
     }
-  }
-
-  private requireEnv(key: string): string {
-    const value = process.env[key];
-    if (!value) {
-      throw new Error(`Missing required environment variable: ${key}`);
-    }
-    return value;
   }
 }

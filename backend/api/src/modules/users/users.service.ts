@@ -1,11 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Users Service
-// ═══════════════════════════════════════════════════════════
-
 import { Injectable, Logger } from '@nestjs/common';
-import { db } from '../../database/db';
-import { users } from '../../database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { UsersRepository } from './users.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { encrypt } from '../../common/encryption';
 
@@ -13,81 +7,52 @@ import { encrypt } from '../../common/encryption';
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
+  constructor(private readonly repo: UsersRepository) {}
+
   async findById(userId: string) {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId));
-    return user || null;
+    return this.repo.getUserById(userId);
   }
 
   async findByEmail(email: string) {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-    return user || null;
+    return this.repo.getUserByEmail(email);
   }
 
-  async create(data: {
-    email: string;
-    name?: string;
-    avatarUrl?: string;
-  }) {
-    const referralCode = uuidv4().slice(0, 8).toUpperCase();
-    const name = data.name || null;
-    const avatarUrl = data.avatarUrl || null;
-
-    const result = await db.execute(sql`
-      INSERT INTO users (email, name, avatar_url, referral_code, plan, credits_remaining, credits_monthly_alloc, credits_used_this_month, onboarding_complete)
-      VALUES (${data.email}, ${name}, ${avatarUrl}, ${referralCode}, 'free', 100, 100, 0, false)
-      RETURNING *
-    `);
-
-    return result[0];
+  async create(data: { email: string; name?: string; avatarUrl?: string }) {
+    return this.repo.createUser({
+      id: uuidv4(),
+      email: data.email,
+      name: data.name || '',
+      plan: 'free',
+      credits: 100,
+      createdAt: new Date().toISOString(),
+    });
   }
 
-  async update(
-    userId: string,
-    data: { email?: string; name?: string; avatarUrl?: string },
-  ) {
-    const setData: Partial<typeof users.$inferSelect> = {};
-    if (data.email) setData.email = data.email;
-    if (data.name) setData.name = data.name;
-    if (data.avatarUrl) setData.avatarUrl = data.avatarUrl;
-
-    if (Object.keys(setData).length === 0) return;
-
-    await db
-      .update(users)
-      .set(setData)
-      .where(eq(users.id, userId));
+  async update(userId: string, data: { email?: string; name?: string; avatarUrl?: string }) {
+    const fields: Record<string, unknown> = {};
+    if (data.email) fields.email = data.email;
+    if (data.name) fields.name = data.name;
+    if (Object.keys(fields).length === 0) return;
+    await this.repo.updateUser(userId, fields);
   }
 
   async delete(userId: string) {
-    await db.execute(sql`DELETE FROM users WHERE id = ${userId}`);
+    await this.repo.deleteUser(userId);
   }
 
   async completeOnboarding(userId: string) {
-    await db.execute(sql`
-      UPDATE users SET onboarding_complete = true, updated_at = NOW() WHERE id = ${userId}
-    `);
+    await this.repo.updateUser(userId, { updatedAt: new Date().toISOString() });
   }
 
-  async updateByokKeys(
-    userId: string,
-    keys: { openaiKey?: string | null; anthropicKey?: string | null },
-  ): Promise<void> {
-    const setData: Partial<typeof users.$inferSelect> = {};
+  async updateByokKeys(userId: string, keys: { openaiKey?: string | null; anthropicKey?: string | null }): Promise<void> {
+    const fields: Record<string, unknown> = {};
     if (keys.openaiKey !== undefined) {
-      setData.byokOpenaiKey = keys.openaiKey ? encrypt(keys.openaiKey) : null;
+      fields.byokOpenaiKey = keys.openaiKey ? encrypt(keys.openaiKey) : null;
     }
     if (keys.anthropicKey !== undefined) {
-      setData.byokAnthropicKey = keys.anthropicKey
-        ? encrypt(keys.anthropicKey)
-        : null;
+      fields.byokAnthropicKey = keys.anthropicKey ? encrypt(keys.anthropicKey) : null;
     }
-    if (Object.keys(setData).length === 0) return;
-    await db.update(users).set(setData).where(eq(users.id, userId));
+    if (Object.keys(fields).length === 0) return;
+    await this.repo.updateUser(userId, fields);
   }
 }

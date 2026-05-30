@@ -9,7 +9,9 @@ interface EnvVar {
 }
 
 const REQUIRED_ENV_VARS: EnvVar[] = [
-  { name: 'DATABASE_URL', required: true, description: 'PostgreSQL connection string', secret: true },
+  { name: 'AWS_REGION', required: false, description: 'AWS region for DynamoDB', secret: false },
+  { name: 'AWS_ACCESS_KEY_ID', required: false, description: 'AWS access key', secret: true },
+  { name: 'AWS_SECRET_ACCESS_KEY', required: false, description: 'AWS secret key', secret: true },
   { name: 'JWT_SECRET', required: true, description: 'JWT signing secret (min 32 chars)', minLength: 32, secret: true },
   { name: 'ENCRYPTION_KEY', required: true, description: 'AES encryption key', minLength: 32, secret: true },
   { name: 'OPENROUTER_API_KEY', required: false, description: 'OpenRouter API key', secret: true },

@@ -1,128 +1,60 @@
-// ═══════════════════════════════════════════════════════════
-// VEL AI — Workspace Service
-// ═══════════════════════════════════════════════════════════
-
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { db } from '../../database/db';
-import { workspaces } from '../../database/schema';
-import { eq, and, sql } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { WorkspacesRepository, WorkspaceRecord } from './workspaces.repository';
 
 @Injectable()
 export class WorkspaceService {
   private readonly logger = new Logger(WorkspaceService.name);
 
+  constructor(private readonly repo: WorkspacesRepository) {}
+
   async findAllByUser(userId: string) {
-    const result = await db.execute(sql`
-      SELECT * FROM workspaces WHERE user_id = ${userId} ORDER BY last_opened_at DESC NULLS LAST
-    `);
-    return Array.isArray(result) ? result : [];
+    return this.repo.findAllByUser(userId);
   }
 
   async findById(id: string, userId: string) {
-    const result = await db.execute(sql`
-      SELECT * FROM workspaces WHERE id = ${id} AND user_id = ${userId}
-    `);
-    const rows = Array.isArray(result) ? result : [];
-
-    if (rows.length === 0) {
+    const workspace = await this.repo.findById(id);
+    if (!workspace || workspace.userId !== userId) {
       throw new NotFoundException('Workspace not found');
     }
-
-    await db.execute(sql`UPDATE workspaces SET last_opened_at = NOW() WHERE id = ${id}`);
-
-    return rows[0];
-  }
-
-  async create(
-    userId: string,
-    data: { name: string; description?: string; templateId?: string },
-  ) {
-    const shareToken = uuidv4().replace(/-/g, '').slice(0, 16);
-    const name = data.name || 'Untitled Workspace';
-    const description = data.description || null;
-    const templateId = data.templateId || null;
-
-    const result = await db.execute(sql`
-      INSERT INTO workspaces (user_id, name, description, template_id, share_token, canvas_state, context_graph, tile_count)
-      VALUES (${userId}, ${name}, ${description}, ${templateId}, ${shareToken}, '{"nodes": [], "edges": [], "viewport": {"x": 0, "y": 0, "zoom": 0.85}}', '{"connections": []}', 0)
-      RETURNING *
-    `);
-
-    return result[0];
-  }
-
-  async update(
-    id: string,
-    userId: string,
-    data: {
-      name?: string;
-      description?: string;
-      canvasState?: unknown;
-      contextGraph?: unknown;
-      tileCount?: number;
-    },
-  ) {
-    const setData: Partial<typeof workspaces.$inferSelect> = {};
-    if (data.name !== undefined) setData.name = data.name;
-    if (data.description !== undefined) setData.description = data.description;
-    if (data.canvasState !== undefined) setData.canvasState = data.canvasState as typeof workspaces.$inferSelect.canvasState;
-    if (data.contextGraph !== undefined) setData.contextGraph = data.contextGraph as typeof workspaces.$inferSelect.contextGraph;
-    if (data.tileCount !== undefined) setData.tileCount = data.tileCount;
-
-    if (Object.keys(setData).length === 0) {
-      return this.findById(id, userId);
-    }
-
-    const [workspace] = await db
-      .update(workspaces)
-      .set(setData)
-      .where(and(eq(workspaces.id, id), eq(workspaces.userId, userId)))
-      .returning();
-
-    if (!workspace) {
-      throw new NotFoundException('Workspace not found');
-    }
-
+    await this.repo.update(id, { lastOpenedAt: new Date().toISOString() });
     return workspace;
   }
 
-  async delete(id: string, userId: string) {
-    const result = await db.execute(sql`
-      DELETE FROM workspaces WHERE id = ${id} AND user_id = ${userId} RETURNING *
-    `);
-    const rows = Array.isArray(result) ? result : [];
-    if (rows.length === 0) {
+  async create(userId: string, data: { name: string; description?: string; templateId?: string }) {
+    return this.repo.create(userId, data);
+  }
+
+  async update(id: string, userId: string, data: { name?: string; description?: string; canvasState?: unknown; contextGraph?: unknown; tileCount?: number }) {
+    const workspace = await this.repo.findById(id);
+    if (!workspace || workspace.userId !== userId) {
       throw new NotFoundException('Workspace not found');
     }
+    const fields: Partial<Omit<WorkspaceRecord, 'id' | 'userId' | 'createdAt'>> = {};
+    if (data.name !== undefined) fields.name = data.name;
+    if (data.description !== undefined) fields.description = data.description;
+    if (data.canvasState !== undefined) fields.canvasState = data.canvasState;
+    if (data.contextGraph !== undefined) fields.contextGraph = data.contextGraph;
+    if (data.tileCount !== undefined) fields.tileCount = data.tileCount;
+    if (Object.keys(fields).length === 0) return workspace;
+    return this.repo.update(id, fields);
+  }
 
+  async delete(id: string, userId: string) {
+    const workspace = await this.repo.findById(id);
+    if (!workspace || workspace.userId !== userId) {
+      throw new NotFoundException('Workspace not found');
+    }
+    await this.repo.delete(id);
     return { deleted: true };
   }
 
-  async findByShareToken(shareToken: string) {
-    const result = await db.execute(sql`
-      SELECT * FROM workspaces WHERE share_token = ${shareToken} AND is_public = true
-    `);
-    const rows = Array.isArray(result) ? result : [];
-    return rows[0] || null;
-  }
-
   async verifyOwnership(workspaceId: string, userId: string): Promise<boolean> {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(workspaceId)) return true;
     try {
-      // Skip verification for non-UUID workspace IDs (e.g., "testing", "new")
-      // These are temporary/client-side workspaces that haven't been persisted yet
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(workspaceId)) {
-        return true; // Allow access to non-persisted workspaces
-      }
-
-      const [row] = await db
-        .select({ id: workspaces.id })
-        .from(workspaces)
-        .where(and(eq(workspaces.id, workspaceId), eq(workspaces.userId, userId)));
-      return !!row;
-    } catch (error) {
-      this.logger.error(`verifyOwnership error: ${error}`);
+      const workspace = await this.repo.findById(workspaceId);
+      return !!workspace && workspace.userId === userId;
+    } catch {
       return false;
     }
   }

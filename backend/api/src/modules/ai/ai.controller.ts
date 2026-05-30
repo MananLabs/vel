@@ -70,8 +70,8 @@ export class AIController {
   ): Promise<void> {
     const startTime = Date.now();
 
-    // Skip workspace ownership check if DB is not configured
-    if (process.env.DATABASE_URL) {
+    // Verify workspace ownership
+    if (this.workspaceService) {
       const canAccess = await this.workspaceService.verifyOwnership(
         dto.workspaceId,
         req.user.id,
@@ -190,8 +190,8 @@ export class AIController {
     @Body() dto: ConsensusStreamDto,
     @Res() res: Response,
   ): Promise<void> {
-    // Skip workspace ownership check if DB is not configured
-    if (process.env.DATABASE_URL) {
+    // Verify workspace ownership
+    if (this.workspaceService) {
       const canAccess = await this.workspaceService.verifyOwnership(
         dto.workspaceId,
         req.user.id,
