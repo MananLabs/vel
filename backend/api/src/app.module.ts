@@ -19,6 +19,7 @@ import { MessagesModule } from './modules/messages/messages.module';
 import { ResearchModule } from './modules/research/research.module';
 import { VoiceModule } from './modules/voice/voice.module';
 import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
           : undefined,
       },
     }),
+    DatabaseModule,
     AuthModule,
     RedisModule,
     ContextModule,
